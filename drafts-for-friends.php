@@ -141,9 +141,18 @@ class DraftsForFriends	{
 		return $this->user_options['shared'];
 	}
 
-	function get_minutestoexpire($share_expires) {
-		$timestamp = $share_expires - time();
-		return floor(($timestamp / 60));
+	/**
+	 * Calculate the amount of time for the shared post to expire.
+	 *
+	 * @param array $share Object that represents the shared post.
+	 * @return string String representing the time for the shared post to expire
+	 */
+	private function get_time_to_expire( $share ) {
+		if ( $share['expires'] < time() ) {
+			return __( 'Expired', 'drafts-for-friends' );
+		} else {
+			return __( 'Expires in ', 'drafts-for-friends'  ).human_time_diff( $share['expires'], current_time( 'timestamp' ) );
+		}
 	}
 
 	function output_existing_menu_sub_admin_page(){
@@ -178,14 +187,14 @@ class DraftsForFriends	{
 		foreach($s as $share):
 			$p = get_post($share['id']);
 			$url = get_bloginfo('url') . '/?p=' . $p->ID . '&draftsforfriends='. $share['key'];
-			$expires = $this->get_minutestoexpire($share['expires']);
+			$expire_time = $this->get_time_to_expire( $share );
 ?>
 			<tr>
 				<td><?php echo $p->ID; ?></td>
 				<td><?php echo $p->post_title; ?></td>
 				<!-- TODO: make the draft link selecatble -->
 				<td><a href="<?php echo $url; ?>"><?php echo esc_html( $url ); ?></a></td>
-				<td><?php echo "In $expires minutes."; ?></td>
+				<td><?php echo $expire_time; ?></td>
 				<td class="actions">
 					<a class="draftsforfriends-extend edit" id="draftsforfriends-extend-link-<?php echo $share['key']; ?>"
 						href="javascript:draftsforfriends.toggle_extend('<?php echo $share['key']; ?>');">
