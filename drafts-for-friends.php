@@ -8,7 +8,6 @@ Author: Neville Longbottom
 Version: 2.2
 Author URI:
  */
-
 class DraftsForFriends {
 
 	/**
@@ -93,8 +92,8 @@ class DraftsForFriends {
 	public function calc( $params ) {
 		$exp      = 60;
 		$multiply = 60;
-		if ( isset( $params['expires'] ) && ( $e = intval( $params['expires'] ) ) ) {
-			$exp = $e;
+		if ( isset( $params['expires'] ) ) {
+			$exp = intval( $params['expires'] );
 		}
 		$mults = array(
 			's' => 1,
@@ -121,7 +120,7 @@ class DraftsForFriends {
 			if ( ! $p ) {
 				return __( 'There is no such post!', 'draftsforfriends' );
 			}
-			if ( 'publish' == get_post_status( $p ) ) {
+			if ( 'publish' === get_post_status( $p ) ) {
 				return __( 'The post is published!', 'draftsforfriends' );
 			}
 			$this->user_options['shared'][] = array(
@@ -143,7 +142,7 @@ class DraftsForFriends {
 		// TODO: delete operation not working for expired shared posts.
 		$shared = array();
 		foreach ( $this->user_options['shared'] as $share ) {
-			if ( $share['key'] == $params['key'] ) {
+			if ( $share['key'] === $params['key'] ) {
 				continue;
 			}
 			$shared[] = $share;
@@ -162,7 +161,7 @@ class DraftsForFriends {
 		// TODO: doesn't seems to be working.
 		$shared = array();
 		foreach ( $this->user_options['shared'] as $share ) {
-			if ( $share['key'] == $params['key'] ) {
+			if ( $share['key'] === $params['key'] ) {
 				$share['expires'] += $this->calc( $params );
 			}
 			$shared[] = $share;
@@ -244,9 +243,9 @@ class DraftsForFriends {
 	public function output_existing_menu_sub_admin_page() {
 		if ( $_POST['draftsforfriends_submit'] ) {
 			$t = $this->process_post_options( $_POST );
-		} elseif ( $_POST['action'] == 'extend' ) {
+		} elseif ( 'extend' === $_POST['action'] ) {
 			$t = $this->process_extend( $_POST );
-		} elseif ( $_GET['action'] == 'delete' ) {
+		} elseif ( 'delete' === $_GET['action'] ) {
 			$t = $this->process_delete( $_GET );
 		}
 		$ds = $this->get_drafts();
@@ -362,7 +361,7 @@ foreach ( $dt[2] as $d ) :
 		foreach ( $this->admin_options as $option ) {
 			$shares = $option['shared'];
 			foreach ( $shares as $share ) {
-				if ( $share['key'] == $_GET['draftsforfriends'] && $pid ) {
+				if ( $share['key'] === $_GET['draftsforfriends'] && $pid ) {
 					return true;
 				}
 			}
@@ -377,12 +376,12 @@ foreach ( $dt[2] as $d ) :
 	 * @return array Array with the same posts that was passed as a parameter
 	 */
 	public function posts_results_intercept( $pp ) {
-		if ( 1 != count( $pp ) ) {
+		if ( 1 !== count( $pp ) ) {
 			return $pp;
 		}
 		$p      = $pp[0];
 		$status = get_post_status( $p );
-		if ( 'publish' != $status && $this->can_view( $p->ID ) ) {
+		if ( 'publish' !== $status && $this->can_view( $p->ID ) ) {
 			$this->shared_post = $p;
 		}
 		return $pp;
