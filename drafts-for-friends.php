@@ -183,7 +183,7 @@ class DraftsForFriends {
 
 		// Get the future user posts, ordered by the post_modified DESC.
 		$args  = array(
-			'post_author' => absint( $current_user->id ),
+			'post_author' => intval( $current_user->id ),
 			'post_status' => array( 'draft', 'future', 'pending' ),
 			'post_type'   => 'post',
 			'orderby'     => 'post_modified',
@@ -375,7 +375,9 @@ foreach ( $dt[2] as $d ) :
 		foreach ( $this->admin_options as $option ) {
 			$shares = $option['shared'];
 			foreach ( $shares as $share ) {
-				if ( $share['key'] === $_GET['draftsforfriends'] && $pid ) {
+				if ( $share['key'] === $_GET['draftsforfriends']
+					&& $pid === $share['id']
+					&& $share['expires'] >= time() ) {
 					return true;
 				}
 			}
@@ -419,7 +421,7 @@ foreach ( $dt[2] as $d ) :
 	/**
 	 * Template for the measure select.
 	 *
-	 * @return void Displays the measure dropdown
+	 * @return void
 	 */
 	public function tmpl_measure_select() {
 		$secs  = __( 'seconds', 'draftsforfriends' );
