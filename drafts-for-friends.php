@@ -271,7 +271,7 @@ class DraftsForFriends {
 	<div class="wrap">
 		<h2><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h2>
 <?php if ( $t ) : ?>
-		<div id="message" class="updated fade"><?php echo $t; ?></div>
+		<div id="message" class="updated fade"><?php echo esc_html( $t ); ?></div>
 <?php endif; ?>
 		<h3><?php esc_html_e( 'Currently shared drafts', 'draftsforfriends' ); ?></h3>
 		<table class="widefat">
@@ -293,28 +293,28 @@ foreach ( $s as $share ) :
 	$expire_time = $this->get_time_to_expire( $share );
 ?>
 	<tr>
-		<td><?php echo $p->ID; ?></td>
-		<td><?php echo $p->post_title; ?></td>
+		<td><?php echo esc_html( $p->ID ); ?></td>
+		<td><?php echo esc_html( $p->post_title ); ?></td>
 		<!-- TODO: make the draft link selecatble -->
-		<td><a href="<?php echo $url; ?>"><?php echo esc_html( $url ); ?></a></td>
-		<td><?php echo $expire_time; ?></td>
+		<td><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_url( $url ); ?></a></td>
+		<td><?php echo esc_html( $expire_time ); ?></td>
 		<td class="actions">
-			<a class="draftsforfriends-extend-button" data-shared-key="<?php echo $share['key']; ?>" href="#">
+			<a class="draftsforfriends-extend-button" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
 					<?php esc_html_e( 'Extend', 'draftsforfriends' ); ?>
 			</a>
-			<form class="draftsforfriends-extend" data-shared-key="<?php echo $share['key']; ?>" method="post">
+			<form class="draftsforfriends-extend" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" method="post">
 				<input type="hidden" name="action" value="extend" />
-				<input type="hidden" name="key" value="<?php echo $share['key']; ?>" />
+				<input type="hidden" name="key" value="<?php echo esc_attr( $share['key'] ); ?>" />
 				<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php esc_attr_e( 'Extend', 'draftsforfriends' ); ?>"/>
 				<?php esc_html_e( 'by', 'draftsforfriends' ); ?>
-				<?php echo $this->tmpl_measure_select(); ?>				
-				<a class="draftsforfriends-extend-cancel" data-shared-key="<?php echo $share['key']; ?>" href="#">
+				<?php $this->tmpl_measure_select(); ?>
+				<a class="draftsforfriends-extend-cancel" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
 					<?php esc_html_e( 'Cancel', 'draftsforfriends' ); ?>
 				</a>
 			</form>
 		</td>
 		<td class="actions">
-			<a class="delete" href="edit.php?page=draftsforfriends&amp;action=delete&amp;key=<?php echo $share['key']; ?>"><?php esc_html_e( 'Delete', 'draftsforfriends' ); ?></a>
+			<a class="delete" href="edit.php?page=draftsforfriends&amp;action=delete&amp;key=<?php echo esc_attr( $share['key'] ); ?>"><?php esc_html_e( 'Delete', 'draftsforfriends' ); ?></a>
 		</td>
 	</tr>
 <?php
@@ -339,14 +339,14 @@ foreach ( $ds as $dt ) :
 	if ( $dt[1] ) :
 ?>
 	<option value="" disabled="disabled"></option>
-	<option value="" disabled="disabled"><?php echo $dt[0]; ?></option>
+	<option value="" disabled="disabled"><?php echo esc_html( $dt[0] ); ?></option>
 <?php
 foreach ( $dt[2] as $d ) :
 	if ( empty( $d->post_title ) ) {
 		continue;
 	}
 ?>
-<option value="<?php echo $d->ID; ?>"><?php echo wp_specialchars( $d->post_title ); ?></option>
+<option value="<?php echo esc_attr( $d->ID ); ?>"><?php echo esc_html( $d->post_title ); ?></option>
 <?php
 		endforeach;
 	endif;
@@ -358,7 +358,7 @@ foreach ( $dt[2] as $d ) :
 			<input type="submit" class="button" name="draftsforfriends_submit"
 				value="<?php esc_attr_e( 'Share it', 'draftsforfriends' ); ?>" />
 			<?php esc_html_e( 'for', 'draftsforfriends' ); ?>
-			<?php echo $this->tmpl_measure_select(); ?>.
+			<?php $this->tmpl_measure_select(); ?>	
 		</p>
 		</form>
 		</div>
@@ -419,23 +419,20 @@ foreach ( $dt[2] as $d ) :
 	/**
 	 * Template for the measure select.
 	 *
-	 * @return string String that represents the select dropdown
+	 * @return void Displays the measure dropdown
 	 */
 	public function tmpl_measure_select() {
-		// TODO: put this output better.
 		$secs  = __( 'seconds', 'draftsforfriends' );
 		$mins  = __( 'minutes', 'draftsforfriends' );
 		$hours = __( 'hours', 'draftsforfriends' );
 		$days  = __( 'days', 'draftsforfriends' );
-		return <<<SELECT
-			<input name="expires" type="text" value="2" size="4"/>
+		print( '<input name="expires" type="text" value="2" size="4"/>
 			<select name="measure">
-				<option value="s">$secs</option>
-				<option value="m">$mins</option>
-				<option value="h" selected="selected">$hours</option>
-				<option value="d">$days</option>
-			</select>
-SELECT;
+				<option value="s">' . esc_html( $secs ) . '</option>
+				<option value="m">' . esc_html( $mins ) . '</option>
+				<option value="h" selected="selected">' . esc_html( $hours ) . '</option>
+				<option value="d">' . esc_html( $days ) . '</option>
+			</select>' );
 	}
 }
 
