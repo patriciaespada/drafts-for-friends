@@ -269,19 +269,19 @@ class DraftsForFriends {
 		$ds = $this->get_drafts();
 ?>
 	<div class="wrap">
-		<h2><?php _e( 'Drafts for Friends', 'draftsforfriends' ); ?></h2>
+		<h2><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h2>
 <?php if ( $t ) : ?>
 		<div id="message" class="updated fade"><?php echo $t; ?></div>
 <?php endif; ?>
-		<h3><?php _e( 'Currently shared drafts', 'draftsforfriends' ); ?></h3>
+		<h3><?php esc_html_e( 'Currently shared drafts', 'draftsforfriends' ); ?></h3>
 		<table class="widefat">
 			<thead>
 			<tr>
-				<th><?php _e( 'ID', 'draftsforfriends' ); ?></th>
-				<th><?php _e( 'Title', 'draftsforfriends' ); ?></th>
-				<th><?php _e( 'Link', 'draftsforfriends' ); ?></th>
-				<th><?php _e( 'Expires After', 'draftsforfriends' ); ?></th>
-				<th colspan="2" class="actions"><?php _e( 'Actions', 'draftsforfriends' ); ?></th>
+				<th><?php esc_html_e( 'ID', 'draftsforfriends' ); ?></th>
+				<th><?php esc_html_e( 'Title', 'draftsforfriends' ); ?></th>
+				<th><?php esc_html_e( 'Link', 'draftsforfriends' ); ?></th>
+				<th><?php esc_html_e( 'Expires After', 'draftsforfriends' ); ?></th>
+				<th colspan="2" class="actions"><?php esc_html_e( 'Actions', 'draftsforfriends' ); ?></th>
 			</tr>
 			</thead>
 			<tbody>
@@ -300,21 +300,21 @@ foreach ( $s as $share ) :
 		<td><?php echo $expire_time; ?></td>
 		<td class="actions">
 			<a class="draftsforfriends-extend-button" data-shared-key="<?php echo $share['key']; ?>" href="#">
-					<?php _e( 'Extend', 'draftsforfriends' ); ?>
+					<?php esc_html_e( 'Extend', 'draftsforfriends' ); ?>
 			</a>
 			<form class="draftsforfriends-extend" data-shared-key="<?php echo $share['key']; ?>" method="post">
 				<input type="hidden" name="action" value="extend" />
 				<input type="hidden" name="key" value="<?php echo $share['key']; ?>" />
-				<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php _e( 'Extend', 'draftsforfriends' ); ?>"/>
-				<?php _e( 'by', 'draftsforfriends' ); ?>
+				<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php esc_attr_e( 'Extend', 'draftsforfriends' ); ?>"/>
+				<?php esc_html_e( 'by', 'draftsforfriends' ); ?>
 				<?php echo $this->tmpl_measure_select(); ?>				
 				<a class="draftsforfriends-extend-cancel" data-shared-key="<?php echo $share['key']; ?>" href="#">
-					<?php _e( 'Cancel', 'draftsforfriends' ); ?>
+					<?php esc_html_e( 'Cancel', 'draftsforfriends' ); ?>
 				</a>
 			</form>
 		</td>
 		<td class="actions">
-			<a class="delete" href="edit.php?page=draftsforfriends&amp;action=delete&amp;key=<?php echo $share['key']; ?>"><?php _e( 'Delete', 'draftsforfriends' ); ?></a>
+			<a class="delete" href="edit.php?page=draftsforfriends&amp;action=delete&amp;key=<?php echo $share['key']; ?>"><?php esc_html_e( 'Delete', 'draftsforfriends' ); ?></a>
 		</td>
 	</tr>
 <?php
@@ -322,18 +322,18 @@ foreach ( $s as $share ) :
 if ( empty( $s ) ) :
 ?>
 	<tr>
-		<td colspan="5"><?php _e( 'No shared drafts!', 'draftsforfriends' ); ?></td>
+		<td colspan="5"><?php esc_html_e( 'No shared drafts!', 'draftsforfriends' ); ?></td>
 	</tr>
 <?php
 		endif;
 ?>
 			</tbody>
 		</table>
-		<h3><?php _e( 'Drafts for Friends', 'draftsforfriends' ); ?></h3>
+		<h3><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h3>
 		<form id="draftsforfriends-share" action=""            method="post">
 		<p>
 			<select id="draftsforfriends-postid" 	name="post_id">
-			<option value=""><?php _e( 'Choose a draft', 'draftsforfriends' ); ?></option>
+			<option value=""><?php esc_html_e( 'Choose a draft', 'draftsforfriends' ); ?></option>
 <?php
 foreach ( $ds as $dt ) :
 	if ( $dt[1] ) :
@@ -356,8 +356,8 @@ foreach ( $dt[2] as $d ) :
 		</p>
 		<p>
 			<input type="submit" class="button" name="draftsforfriends_submit"
-				value="<?php _e( 'Share it', 'draftsforfriends' ); ?>" />
-			<?php _e( 'for', 'draftsforfriends' ); ?>
+				value="<?php esc_attr_e( 'Share it', 'draftsforfriends' ); ?>" />
+			<?php esc_html_e( 'for', 'draftsforfriends' ); ?>
 			<?php echo $this->tmpl_measure_select(); ?>.
 		</p>
 		</form>
