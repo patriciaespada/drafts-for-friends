@@ -1,0 +1,13 @@
+a.draftsforfriends-extend-button, a.draftsforfriends-extend-cancel {
+	display: none;
+}
+form.draftsforfriends-extend {
+    white-space: nowrap;
+    display: none;
+}
+form.draftsforfriends-extend, form.draftsforfriends-extend input, form.draftsforfriends-extend select {
+	font-size: 11px;
+}
+th.actions, td.actions {
+	text-align: center;
+}

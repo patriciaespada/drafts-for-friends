@@ -1,12 +1,17 @@
 <?php
+/**
+ * Implementation of the plugin Drafts for Firends.
+ *
+ * @package DraftsForFriends
+ */
 
 /**
-Plugin Name: Drafts for Friends
-Plugin URI: http://automattic.com/
-Description: Now you don't need to add friends as users to the blog in order to let them preview your drafts
-Author: Neville Longbottom
-Version: 2.2
-Author URI:
+ * Plugin Name: Drafts for Friends
+ * Plugin URI: http://automattic.com/
+ * Description: Now you don't need to add friends as users to the blog in order to let them preview your drafts
+ * Author: Neville Longbottom
+ * Version: 2.2
+ * Author URI:
  */
 class DraftsForFriends {
 
@@ -44,8 +49,8 @@ class DraftsForFriends {
 	 */
 	public function admin_page_init() {
 		wp_enqueue_script( 'jquery' );
-		add_action( 'admin_head', array( $this, 'print_admin_css' ) );
-		add_action( 'admin_head', array( $this, 'print_admin_js' ) );
+		wp_enqueue_script( 'draftsforfriends', plugins_url( 'js/drafts-for-friends.js', __FILE__ ), array( 'jquery' ) );
+		wp_enqueue_style( 'draftsforfriends', plugins_url( 'css/drafts-for-friends.css', __FILE__ ) );
 	}
 
 	/**
@@ -79,7 +84,7 @@ class DraftsForFriends {
 	public function add_admin_pages() {
 		add_submenu_page(
 			'edit.php', __( 'Drafts for Friends', 'draftsforfriends' ), __( 'Drafts for Friends', 'draftsforfriends' ),
-			1, __FILE__, array( $this, 'output_existing_menu_sub_admin_page' )
+			1, 'draftsforfriends', array( $this, 'output_existing_menu_sub_admin_page' )
 		);
 	}
 
@@ -108,12 +113,12 @@ class DraftsForFriends {
 	}
 
 	/**
-	 * Process post options to set as new draft.
+	 * Process share a new draft.
 	 *
-	 * @param array $params Array of shared draft options.
+	 * @param array $params Array with the options of the new shared draft.
 	 * @return string A string saying why the post wasn't shared or a new line in the table will be displayed
 	 */
-	public function process_post_options( $params ) {
+	public function process_share_draft( $params ) {
 		global $current_user;
 		if ( $params['post_id'] ) {
 			$p = get_post( $params['post_id'] );
@@ -139,7 +144,6 @@ class DraftsForFriends {
 	 * @return void Remove the shared post from the list
 	 */
 	public function process_delete( $params ) {
-		// TODO: delete operation not working for expired shared posts.
 		$shared = array();
 		foreach ( $this->user_options['shared'] as $share ) {
 			if ( $share['key'] === $params['key'] ) {
@@ -158,11 +162,10 @@ class DraftsForFriends {
 	 * @return void Update the expiration date on the correspondent line in the list for the shared post
 	 */
 	public function process_extend( $params ) {
-		// TODO: doesn't seems to be working.
 		$shared = array();
 		foreach ( $this->user_options['shared'] as $share ) {
 			if ( $share['key'] === $params['key'] ) {
-				$share['expires'] += $this->calc( $params );
+				$share['expires'] = time() + $this->calc( $params );
 			}
 			$shared[] = $share;
 		}
@@ -244,9 +247,9 @@ class DraftsForFriends {
 	 */
 	private function get_time_to_expire( $share ) {
 		if ( $share['expires'] < time() ) {
-			return __( 'Expired', 'drafts-for-friends' );
+			return __( 'Expired', 'draftsforfriends' );
 		} else {
-			return __( 'Expires in ', 'drafts-for-friends' ) . human_time_diff( $share['expires'], current_time( 'timestamp' ) );
+			return __( 'Expires in ', 'draftsforfriends' ) . human_time_diff( $share['expires'], current_time( 'timestamp' ) );
 		}
 	}
 
@@ -257,7 +260,7 @@ class DraftsForFriends {
 	 */
 	public function output_existing_menu_sub_admin_page() {
 		if ( $_POST['draftsforfriends_submit'] ) {
-			$t = $this->process_post_options( $_POST );
+			$t = $this->process_share_draft( $_POST );
 		} elseif ( 'extend' === $_POST['action'] ) {
 			$t = $this->process_extend( $_POST );
 		} elseif ( 'delete' === $_GET['action'] ) {
@@ -296,26 +299,22 @@ foreach ( $s as $share ) :
 		<td><a href="<?php echo $url; ?>"><?php echo esc_html( $url ); ?></a></td>
 		<td><?php echo $expire_time; ?></td>
 		<td class="actions">
-			<a class="draftsforfriends-extend edit" id="draftsforfriends-extend-link-<?php echo $share['key']; ?>"
-				href="javascript:draftsforfriends.toggle_extend('<?php echo $share['key']; ?>');">
+			<a class="draftsforfriends-extend-button" data-shared-key="<?php echo $share['key']; ?>" href="#">
 					<?php _e( 'Extend', 'draftsforfriends' ); ?>
 			</a>
-			<form class="draftsforfriends-extend" id="draftsforfriends-extend-form-<?php echo $share['key']; ?>"
-				action="" method="post">    
+			<form class="draftsforfriends-extend" data-shared-key="<?php echo $share['key']; ?>" method="post">
 				<input type="hidden" name="action" value="extend" />
 				<input type="hidden" name="key" value="<?php echo $share['key']; ?>" />
-				<input type="submit" class="button" name="draftsforfriends_extend_submit"
-					value="<?php _e( 'Extend', 'draftsforfriends' ); ?>"/>
-<?php _e( 'by', 'draftsforfriends' ); ?>
-<?php echo $this->tmpl_measure_select(); ?>				
-				<a class="draftsforfriends-extend-cancel"
-					href="javascript:draftsforfriends.cancel_extend('<?php echo $share['key']; ?>');">
+				<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php _e( 'Extend', 'draftsforfriends' ); ?>"/>
+				<?php _e( 'by', 'draftsforfriends' ); ?>
+				<?php echo $this->tmpl_measure_select(); ?>				
+				<a class="draftsforfriends-extend-cancel" data-shared-key="<?php echo $share['key']; ?>" href="#">
 					<?php _e( 'Cancel', 'draftsforfriends' ); ?>
 				</a>
 			</form>
 		</td>
 		<td class="actions">
-			<a class="delete" href="edit.php?page=<?php echo plugin_basename( __FILE__ ); ?>&amp;action=delete&amp;key=<?php echo $share['key']; ?>"><?php _e( 'Delete', 'draftsforfriends' ); ?></a>
+			<a class="delete" href="edit.php?page=draftsforfriends&amp;action=delete&amp;key=<?php echo $share['key']; ?>"><?php _e( 'Delete', 'draftsforfriends' ); ?></a>
 		</td>
 	</tr>
 <?php
@@ -437,53 +436,6 @@ foreach ( $dt[2] as $d ) :
 				<option value="d">$days</option>
 			</select>
 SELECT;
-	}
-
-	/**
-	 * Print the block for the CSS.
-	 *
-	 * @return void
-	 */
-	public function print_admin_css() {
-		// TODO: put the CSS as a seperated file.
-?>
-	<style type="text/css">
-		a.draftsforfriends-extend, a.draftsforfriends-extend-cancel { display: none; }
-		form.draftsforfriends-extend { white-space: nowrap; }
-		form.draftsforfriends-extend, form.draftsforfriends-extend input, form.draftsforfriends-extend select { font-size: 11px; }
-		th.actions, td.actions { text-align: center; }
-	</style>
-<?php
-	}
-
-	/**
-	 * Print the javascript block.
-	 *
-	 * @return void
-	 */
-	public function print_admin_js() {
-		// TODO: put the JS as seperated file.
-?>
-	<script type="text/javascript">
-	jQuery(function() {
-		jQuery('form.draftsforfriends-extend').hide();
-		jQuery('a.draftsforfriends-extend').show();
-		jQuery('a.draftsforfriends-extend-cancel').show();
-		jQuery('a.draftsforfriends-extend-cancel').css('display', 'inline');
-	});
-	window.draftsforfriends = {
-		toggle_extend: function(key) {
-			jQuery('#draftsforfriends-extend-form-'+key).show();
-			jQuery('#draftsforfriends-extend-link-'+key).hide();
-			jQuery('#draftsforfriends-extend-form-'+key+' input[name="expires"]').focus();
-		},
-		cancel_extend: function(key) {
-			jQuery('#draftsforfriends-extend-form-'+key).hide();
-			jQuery('#draftsforfriends-extend-link-'+key).show();
-		}
-	};
-	</script>
-<?php
 	}
 }
 
