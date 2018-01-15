@@ -177,10 +177,37 @@ class DraftsForFriends {
 	 */
 	public function get_drafts() {
 		global $current_user;
-		$my_drafts    = get_users_drafts( $current_user->id );
-		$my_scheduled = $this->get_users_future( $current_user->id );
-		$pending      = get_others_pending( $current_user->id );
-		$ds           = array(
+
+		// Get the future user posts, ordered by the post_modified DESC.
+		$args  = array(
+			'post_author' => absint( $current_user->id ),
+			'post_status' => array( 'draft', 'future', 'pending' ),
+			'post_type'   => 'post',
+			'orderby'     => 'post_modified',
+			'order'       => 'DESC',
+		);
+		$posts = new WP_Query( $args );
+
+		// Arrange posts to order by status and present the ID and title per post.
+		$my_drafts    = array();
+		$my_scheduled = array();
+		$pending      = array();
+		foreach ( $posts->posts as $post ) {
+			$post_array = (object) array(
+				'ID'         => $post->ID,
+				'post_title' => $post->post_title,
+			);
+			if ( 'draft' === $post->post_status ) {
+				$my_drafts[] = $post_array;
+			} elseif ( 'future' === $post->post_status ) {
+				$my_scheduled[] = $post_array;
+			} elseif ( 'pending' === $post->post_status ) {
+				$pending[] = $post_array;
+			}
+		}
+
+		// Build the select dropdown for choosing the draft.
+		$ds = array(
 			array(
 				__( 'Your Drafts:', 'draftsforfriends' ),
 				count( $my_drafts ),
@@ -198,18 +225,6 @@ class DraftsForFriends {
 			),
 		);
 		return $ds;
-	}
-
-	/**
-	 * Get users posts marked as drafts.
-	 *
-	 * @param int $user_id User id.
-	 * @return array Array with all users post drafts
-	 */
-	public function get_users_future( $user_id ) {
-		// TODO: change the query.
-		global $wpdb;
-		return $wpdb->get_results( "SELECT ID, post_title FROM $wpdb->posts WHERE post_type = 'post' AND post_status = 'future' AND post_author = $user_id ORDER BY post_modified DESC" );
 	}
 
 	/**
