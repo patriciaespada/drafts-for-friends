@@ -131,7 +131,7 @@ class DraftsForFriends {
 			$this->user_options['shared'][] = array(
 				'id'      => $p->ID,
 				'expires' => time() + $this->calc( $params ),
-				'key'     => 'baba_' . wp_generate_password( 8 ),
+				'key'     => 'baba_' . wp_generate_password( 12, false ),
 			);
 			$this->save_admin_options();
 		}
@@ -157,6 +157,8 @@ class DraftsForFriends {
 
 	/**
 	 * Extend the shared post to have a new expiration date.
+	 * If the expiration date is in the past then we apply the new expiration date taking into account the
+	 * current date. If it's not in the past, then we simply add the amount of expiration to the existing one.
 	 *
 	 * @param array $params Array of shared draft options.
 	 * @return void Update the expiration date on the correspondent line in the list for the shared post
@@ -165,7 +167,11 @@ class DraftsForFriends {
 		$shared = array();
 		foreach ( $this->user_options['shared'] as $share ) {
 			if ( $share['key'] === $params['key'] ) {
-				$share['expires'] = time() + $this->calc( $params );
+				if ( $share['expires'] < time() ) {
+					$share['expires'] = time() + $this->calc( $params );
+				} else {
+					$share['expires'] += $this->calc( $params );
+				}
 			}
 			$shared[] = $share;
 		}
@@ -259,11 +265,18 @@ class DraftsForFriends {
 	 * @return void
 	 */
 	public function output_existing_menu_sub_admin_page() {
-		if ( $_POST['draftsforfriends_submit'] ) {
+		if ( isset( $_POST['share-draft-nonce'] )
+			&& wp_verify_nonce( sanitize_key( $_POST['share-draft-nonce'] ), 'share-draft' )
+			&& isset( $_POST['draftsforfriends_submit'] )
+			&& sanitize_text_field( wp_unslash( $_POST['draftsforfriends_submit'] ) ) ) {
 			$t = $this->process_share_draft( $_POST );
-		} elseif ( 'extend' === $_POST['action'] ) {
+		} elseif ( isset( $_POST['extend-nonce'] )
+			&& wp_verify_nonce( sanitize_key( $_POST['extend-nonce'] ), 'extend' )
+			&& isset( $_POST['action'] ) && 'extend' === $_POST['action'] ) {
 			$t = $this->process_extend( $_POST );
-		} elseif ( 'delete' === $_GET['action'] ) {
+		} elseif ( isset( $_GET['delete-nonce'] )
+			&& wp_verify_nonce( sanitize_key( $_GET['delete-nonce'] ), 'delete' )
+			&& isset( $_GET['action'] ) && 'delete' === $_GET['action'] ) {
 			$t = $this->process_delete( $_GET );
 		}
 		$ds = $this->get_drafts();
@@ -303,6 +316,7 @@ foreach ( $s as $share ) :
 					<?php esc_html_e( 'Extend', 'draftsforfriends' ); ?>
 			</a>
 			<form class="draftsforfriends-extend" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" method="post">
+				<?php wp_nonce_field( 'extend', 'extend-nonce' ); ?>
 				<input type="hidden" name="action" value="extend" />
 				<input type="hidden" name="key" value="<?php echo esc_attr( $share['key'] ); ?>" />
 				<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php esc_attr_e( 'Extend', 'draftsforfriends' ); ?>"/>
@@ -314,7 +328,15 @@ foreach ( $s as $share ) :
 			</form>
 		</td>
 		<td class="actions">
-			<a class="delete" href="edit.php?page=draftsforfriends&amp;action=delete&amp;key=<?php echo esc_attr( $share['key'] ); ?>"><?php esc_html_e( 'Delete', 'draftsforfriends' ); ?></a>
+			<form class="draftsforfriends-delete" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" action='edit.php' method='get'>
+				<?php wp_nonce_field( 'delete', 'delete-nonce' ); ?>
+				<input type='hidden' name='page' value='draftsforfriends' />
+				<input type='hidden' name='action' value='delete' />
+				<input type='hidden' name='key' value='<?php echo esc_attr( $share['key'] ); ?>' />
+			</form>
+			<a class="draftsforfriends-delete-button" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
+					<?php esc_html_e( 'Delete', 'draftsforfriends' ); ?>
+			</a>
 		</td>
 	</tr>
 <?php
@@ -330,7 +352,8 @@ if ( empty( $s ) ) :
 			</tbody>
 		</table>
 		<h3><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h3>
-		<form id="draftsforfriends-share" action=""            method="post">
+		<form id="draftsforfriends-share" method="post">
+			<?php wp_nonce_field( 'share-draft', 'share-draft-nonce' ); ?>
 		<p>
 			<select id="draftsforfriends-postid" 	name="post_id">
 			<option value=""><?php esc_html_e( 'Choose a draft', 'draftsforfriends' ); ?></option>
@@ -375,10 +398,10 @@ foreach ( $dt[2] as $d ) :
 		foreach ( $this->admin_options as $option ) {
 			$shares = $option['shared'];
 			foreach ( $shares as $share ) {
-				if ( $share['key'] === $_GET['draftsforfriends']
-					&& $pid === $share['id']
-					&& $share['expires'] >= time() ) {
-					return true;
+				if ( isset( $_GET['draftsforfriends'] )
+					&& $share['key'] === $_GET['draftsforfriends']
+					&& $pid === $share['id'] ) {
+					return $share['expires'] >= time();
 				}
 			}
 		}
