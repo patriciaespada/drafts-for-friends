@@ -66,14 +66,14 @@ class DraftsForFriends {
 	/**
 	 * Save the shared objects.
 	 *
-	 * @return void
+	 * @return boolean False if value was not updated and true if value was updated
 	 */
 	public function save_admin_options() {
 		global $current_user;
 		if ( $current_user->id > 0 ) {
 			$this->admin_options[ $current_user->id ] = $this->user_options;
 		}
-		update_option( 'shared', $this->admin_options );
+		return update_option( 'shared', $this->admin_options );
 	}
 
 	/**
@@ -98,7 +98,7 @@ class DraftsForFriends {
 		$exp      = 60;
 		$multiply = 60;
 		if ( isset( $params['expires'] ) ) {
-			$exp = intval( $params['expires'] );
+			$exp = absint( $params['expires'] );
 		}
 		$mults = array(
 			's' => 1,
@@ -106,10 +106,10 @@ class DraftsForFriends {
 			'h' => 3600,
 			'd' => 24 * 3600,
 		);
-		if ( $params['measure'] && $mults[ $params['measure'] ] ) {
+		if ( isset( $params['measure'] ) && $mults[ $params['measure'] ] ) {
 			$multiply = $mults[ $params['measure'] ];
 		}
-		return $exp * $multiply;
+		return absint( $exp * $multiply );
 	}
 
 	/**
@@ -119,21 +119,49 @@ class DraftsForFriends {
 	 * @return string A string saying why the post wasn't shared or a new line in the table will be displayed
 	 */
 	public function process_share_draft( $params ) {
+		if ( empty( $params['share-draft-nonce'] ) || ! wp_verify_nonce( $params['share-draft-nonce'], 'share-draft' ) ) {
+			return new WP_Error(
+				'invalid_shared_draft_nonce',
+				__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' )
+			);
+		}
+
 		global $current_user;
-		if ( $params['post_id'] ) {
+		if ( isset( $params['post_id'] ) ) {
 			$p = get_post( $params['post_id'] );
-			if ( ! $p ) {
-				return __( 'There is no such post!', 'draftsforfriends' );
+			if ( empty( $p ) ) {
+				return new WP_Error(
+					'invalid_post_id',
+					__( 'Could not find any post with the specified id.', 'draftsforfriends' )
+				);
 			}
 			if ( 'publish' === get_post_status( $p ) ) {
-				return __( 'The post is published!', 'draftsforfriends' );
+				return new WP_Error(
+					'invalid_post_status',
+					__( 'The post is already published.', 'draftsforfriends' )
+				);
 			}
+
 			$this->user_options['shared'][] = array(
 				'id'      => $p->ID,
 				'expires' => time() + $this->calc( $params ),
 				'key'     => 'baba_' . wp_generate_password( 12, false ),
 			);
-			$this->save_admin_options();
+
+			$result = $this->save_admin_options();
+			if ( empty( $result ) ) {
+				return __( 'A draft for the post was succesfully created.', 'draftsforfriends' );
+			} else {
+				return new WP_Error(
+					'error_draft_creation',
+					__( 'An error occured while creating the post draft. Please try again.', 'draftsforfriends' )
+				);
+			}
+		} else {
+			return new WP_Error(
+				'invalid_post_id',
+				__( 'No post id was found in the request.', 'draftsforfriends' )
+			);
 		}
 	}
 
@@ -141,18 +169,41 @@ class DraftsForFriends {
 	 * Delete the shared post.
 	 *
 	 * @param array $params Array of shared draft options.
-	 * @return void Remove the shared post from the list
+	 * @return string A string saying why the draft wasn't deleted or an update to the table
 	 */
 	public function process_delete( $params ) {
-		$shared = array();
-		foreach ( $this->user_options['shared'] as $share ) {
-			if ( $share['key'] === $params['key'] ) {
-				continue;
-			}
-			$shared[] = $share;
+		if ( empty( $params['delete-nonce'] ) || ! wp_verify_nonce( $params['delete-nonce'], 'delete' ) ) {
+			return new WP_Error(
+				'invalid_delete_nonce',
+				__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' )
+			);
 		}
-		$this->user_options['shared'] = $shared;
-		$this->save_admin_options();
+
+		if ( isset( $params['key'] ) ) {
+			$shared = array();
+			foreach ( $this->user_options['shared'] as $share ) {
+				if ( $share['key'] === $params['key'] ) {
+					continue;
+				}
+				$shared[] = $share;
+			}
+			$this->user_options['shared'] = $shared;
+
+			$result = $this->save_admin_options();
+			if ( empty( $result ) ) {
+				return __( 'The post draft was succesfully deleted.', 'draftsforfriends' );
+			} else {
+				return new WP_Error(
+					'error_draft_deletion',
+					__( 'An error occured while deleting the post draft. Please try again.', 'draftsforfriends' )
+				);
+			}
+		} else {
+			return new WP_Error(
+				'invalid_key',
+				__( 'No draft post key was found in the request.', 'draftsforfriends' )
+			);
+		}
 	}
 
 	/**
@@ -161,22 +212,46 @@ class DraftsForFriends {
 	 * current date. If it's not in the past, then we simply add the amount of expiration to the existing one.
 	 *
 	 * @param array $params Array of shared draft options.
-	 * @return void Update the expiration date on the correspondent line in the list for the shared post
+	 * @return string  A string saying why the draft wasn't extended or update the expiration date on the correspondent
+	 * line in the list for the shared post
 	 */
 	public function process_extend( $params ) {
-		$shared = array();
-		foreach ( $this->user_options['shared'] as $share ) {
-			if ( $share['key'] === $params['key'] ) {
-				if ( $share['expires'] < time() ) {
-					$share['expires'] = time() + $this->calc( $params );
-				} else {
-					$share['expires'] += $this->calc( $params );
-				}
-			}
-			$shared[] = $share;
+		if ( empty( $params['extend-nonce'] ) || ! wp_verify_nonce( $params['extend-nonce'], 'extend' ) ) {
+			return new WP_Error(
+				'invalid_extend_nonce',
+				__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' )
+			);
 		}
-		$this->user_options['shared'] = $shared;
-		$this->save_admin_options();
+
+		if ( isset( $params['key'] ) ) {
+			$shared = array();
+			foreach ( $this->user_options['shared'] as $share ) {
+				if ( $share['key'] === $params['key'] ) {
+					if ( $share['expires'] < time() ) {
+						$share['expires'] = time() + $this->calc( $params );
+					} else {
+						$share['expires'] += $this->calc( $params );
+					}
+				}
+				$shared[] = $share;
+			}
+			$this->user_options['shared'] = $shared;
+
+			$result = $this->save_admin_options();
+			if ( empty( $result ) ) {
+				return __( 'The post draft was succesfully extended.', 'draftsforfriends' );
+			} else {
+				return new WP_Error(
+					'error_draft_extention',
+					__( 'An error occured while extending the post draft. Please try again.', 'draftsforfriends' )
+				);
+			}
+		} else {
+			return new WP_Error(
+				'invalid_key',
+				__( 'No draft post key was found in the request.', 'draftsforfriends' )
+			);
+		}
 	}
 
 	/**
@@ -189,7 +264,7 @@ class DraftsForFriends {
 
 		// Get the future user posts, ordered by the post_modified DESC.
 		$args  = array(
-			'post_author' => intval( $current_user->id ),
+			'post_author' => absint( $current_user->id ),
 			'post_status' => array( 'draft', 'future', 'pending' ),
 			'post_type'   => 'post',
 			'orderby'     => 'post_modified',
@@ -252,6 +327,7 @@ class DraftsForFriends {
 	 * @return string String representing the time for the shared post to expire
 	 */
 	private function get_time_to_expire( $share ) {
+		// TODO: change this to print something like (1 hour, 20 minutes).
 		if ( $share['expires'] < time() ) {
 			return __( 'Expired', 'draftsforfriends' );
 		} else {
@@ -265,27 +341,24 @@ class DraftsForFriends {
 	 * @return void
 	 */
 	public function output_existing_menu_sub_admin_page() {
-		if ( isset( $_POST['share-draft-nonce'] )
-			&& wp_verify_nonce( sanitize_key( $_POST['share-draft-nonce'] ), 'share-draft' )
-			&& isset( $_POST['draftsforfriends_submit'] )
-			&& sanitize_text_field( wp_unslash( $_POST['draftsforfriends_submit'] ) ) ) {
-			$t = $this->process_share_draft( $_POST );
-		} elseif ( isset( $_POST['extend-nonce'] )
-			&& wp_verify_nonce( sanitize_key( $_POST['extend-nonce'] ), 'extend' )
-			&& isset( $_POST['action'] ) && 'extend' === $_POST['action'] ) {
-			$t = $this->process_extend( $_POST );
-		} elseif ( isset( $_GET['delete-nonce'] )
-			&& wp_verify_nonce( sanitize_key( $_GET['delete-nonce'] ), 'delete' )
-			&& isset( $_GET['action'] ) && 'delete' === $_GET['action'] ) {
-			$t = $this->process_delete( $_GET );
+		if ( filter_input( INPUT_POST, 'draftsforfriends_submit', FILTER_SANITIZE_STRING ) ) {
+			$t = $this->process_share_draft( filter_input_array( INPUT_POST ) );
+		} elseif ( 'extend' === filter_input( INPUT_POST, 'action', FILTER_SANITIZE_STRING ) ) {
+			$t = $this->process_extend( filter_input_array( INPUT_POST ) );
+		} elseif ( 'delete' === filter_input( INPUT_POST, 'action', FILTER_SANITIZE_STRING ) ) {
+			$t = $this->process_delete( filter_input_array( INPUT_POST ) );
 		}
 		$ds = $this->get_drafts();
 ?>
 	<div class="wrap">
 		<h2><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h2>
-<?php if ( $t ) : ?>
-		<div id="message" class="updated fade"><?php echo esc_html( $t ); ?></div>
-<?php endif; ?>
+<?php if ( isset( $t ) ) { ?>
+	<?php if ( is_wp_error( $t ) ) { ?>
+		<div class="notice notice-error"><p><?php echo esc_html( $t->get_error_message() ); ?></p></div>
+	<?php } else { ?>
+		<div class="notice notice-success"><p><?php echo esc_html( $t ); ?></p></div>
+	<?php }; ?>
+<?php }; ?>
 		<h3><?php esc_html_e( 'Currently shared drafts', 'draftsforfriends' ); ?></h3>
 		<table class="widefat">
 			<thead>
@@ -328,9 +401,8 @@ foreach ( $s as $share ) :
 			</form>
 		</td>
 		<td class="actions">
-			<form class="draftsforfriends-delete" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" action='edit.php' method='get'>
+			<form class="draftsforfriends-delete" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" method='post'>
 				<?php wp_nonce_field( 'delete', 'delete-nonce' ); ?>
-				<input type='hidden' name='page' value='draftsforfriends' />
 				<input type='hidden' name='action' value='delete' />
 				<input type='hidden' name='key' value='<?php echo esc_attr( $share['key'] ); ?>' />
 			</form>
@@ -395,12 +467,15 @@ foreach ( $dt[2] as $d ) :
 	 * @return boolean True if the url matches, false otherwise
 	 */
 	public function can_view( $pid ) {
+		$key = filter_input( INPUT_GET, 'draftsforfriends', FILTER_SANITIZE_STRING );
+		if ( empty( $key ) ) {
+			return false;
+		}
+
 		foreach ( $this->admin_options as $option ) {
 			$shares = $option['shared'];
 			foreach ( $shares as $share ) {
-				if ( isset( $_GET['draftsforfriends'] )
-					&& $share['key'] === $_GET['draftsforfriends']
-					&& $pid === $share['id'] ) {
+				if ( $key === $share['key'] && $pid === $share['id'] ) {
 					return $share['expires'] >= time();
 				}
 			}
