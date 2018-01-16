@@ -9,9 +9,10 @@
  * Plugin Name: Drafts for Friends
  * Plugin URI: http://automattic.com/
  * Description: Now you don't need to add friends as users to the blog in order to let them preview your drafts
- * Author: Neville Longbottom
- * Version: 2.2
- * Author URI:
+ * Author: Patrícia Espada
+ * Text Domain: draftsforfriends
+ * Domain Path: /languages
+ * Version: 1.0
  */
 class DraftsForFriends {
 
@@ -150,11 +151,11 @@ class DraftsForFriends {
 
 			$result = $this->save_admin_options();
 			if ( $result ) {
-				return __( 'A draft for the post was succesfully created.', 'draftsforfriends' );
+				return __( 'A draft for the post was successfully created.', 'draftsforfriends' );
 			} else {
 				return new WP_Error(
 					'error_draft_creation',
-					__( 'An error occured while creating the post draft. Please try again.', 'draftsforfriends' )
+					__( 'An error occurred while creating the post draft. Please try again.', 'draftsforfriends' )
 				);
 			}
 		} else {
@@ -191,11 +192,11 @@ class DraftsForFriends {
 
 			$result = $this->save_admin_options();
 			if ( $result ) {
-				return __( 'The post draft was succesfully deleted.', 'draftsforfriends' );
+				return __( 'The post draft was successfully deleted.', 'draftsforfriends' );
 			} else {
 				return new WP_Error(
 					'error_draft_deletion',
-					__( 'An error occured while deleting the post draft. Please try again.', 'draftsforfriends' )
+					__( 'An error occurred while deleting the post draft. Please try again.', 'draftsforfriends' )
 				);
 			}
 		} else {
@@ -239,11 +240,11 @@ class DraftsForFriends {
 
 			$result = $this->save_admin_options();
 			if ( $result ) {
-				return __( 'The post draft was succesfully extended.', 'draftsforfriends' );
+				return __( 'The post draft was successfully extended.', 'draftsforfriends' );
 			} else {
 				return new WP_Error(
 					'error_draft_extention',
-					__( 'An error occured while extending the post draft. Please try again.', 'draftsforfriends' )
+					__( 'An error occurred while extending the post draft. Please try again.', 'draftsforfriends' )
 				);
 			}
 		} else {
@@ -336,16 +337,30 @@ class DraftsForFriends {
 			$hours   = floor( ( $diff - $days * ( 60 * 60 * 24 ) ) / ( 60 * 60 ) );
 			$minutes = floor( ( $diff - ( $days * ( 60 * 60 * 24 ) + $hours * ( 60 * 60 ) ) ) / 60 );
 
-			$days_str    = sprintf( _n( '%d day', '%d days', $days, 'draftsforfriends' ), $days );
-			$hours_str   = sprintf( _n( '%d hour', '%d hours', $hours, 'draftsforfriends' ), $hours );
+			/* translators: %d: days representation */
+			$days_str = sprintf( _n( '%d day', '%d days', $days, 'draftsforfriends' ), $days );
+			/* translators: %d: hours representation */
+			$hours_str = sprintf( _n( '%d hour', '%d hours', $hours, 'draftsforfriends' ), $hours );
+			/* translators: %d: minutes representation */
 			$minutes_str = sprintf( _n( '%d minute', '%d minutes', $minutes, 'draftsforfriends' ), $minutes );
 
 			if ( $days > 0 ) {
+				/*
+				 * translators:
+				 * %1$d: days string (e.g.: 1 day or 20 days)
+				 * %2$d: hours string (e.g.: 1 hour or 20 hours)
+				 * %3$d: minutes string (e.g.: 1 minute or 20 minutes)
+				 */
 				return sprintf( __( '%1$s, %2$s, %3$s', 'draftsforfriends' ), $days_str, $hours_str, $minutes_str );
 			} elseif ( $hours > 0 ) {
+				/*
+				 * translators:
+				 * %1$d: hours string (e.g.: 1 hour or 20 hours)
+				 * %2$d: minutes string (e.g.: 1 minute or 20 minutes)
+				 */
 				return sprintf( __( '%1$s, %2$s', 'draftsforfriends' ), $hours_str, $minutes_str );
 			} elseif ( $minutes > 0 ) {
-				return sprintf( __( '%s', 'draftsforfriends' ), $minutes_str );
+				return $minutes_str;
 			} else {
 				return __( '1 minute', 'draftsforfriends' );
 			}
@@ -398,7 +413,6 @@ foreach ( $s as $share ) :
 	<tr>
 		<td><?php echo esc_html( $p->ID ); ?></td>
 		<td><?php echo esc_html( $p->post_title ); ?></td>
-		<!-- TODO: make the draft link selecatble -->
 		<td><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_url( $url ); ?></a></td>
 		<td><?php echo esc_html( $expire_time ); ?></td>
 		<td class="actions">
