@@ -149,7 +149,7 @@ class DraftsForFriends {
 			);
 
 			$result = $this->save_admin_options();
-			if ( empty( $result ) ) {
+			if ( $result ) {
 				return __( 'A draft for the post was succesfully created.', 'draftsforfriends' );
 			} else {
 				return new WP_Error(
@@ -190,7 +190,7 @@ class DraftsForFriends {
 			$this->user_options['shared'] = $shared;
 
 			$result = $this->save_admin_options();
-			if ( empty( $result ) ) {
+			if ( $result ) {
 				return __( 'The post draft was succesfully deleted.', 'draftsforfriends' );
 			} else {
 				return new WP_Error(
@@ -238,7 +238,7 @@ class DraftsForFriends {
 			$this->user_options['shared'] = $shared;
 
 			$result = $this->save_admin_options();
-			if ( empty( $result ) ) {
+			if ( $result ) {
 				return __( 'The post draft was succesfully extended.', 'draftsforfriends' );
 			} else {
 				return new WP_Error(
@@ -327,11 +327,28 @@ class DraftsForFriends {
 	 * @return string String representing the time for the shared post to expire
 	 */
 	private function get_time_to_expire( $share ) {
-		// TODO: change this to print something like (1 hour, 20 minutes).
-		if ( $share['expires'] < time() ) {
+		$now = current_time( 'timestamp' );
+		if ( $share['expires'] < $now ) {
 			return __( 'Expired', 'draftsforfriends' );
 		} else {
-			return __( 'Expires in ', 'draftsforfriends' ) . human_time_diff( $share['expires'], current_time( 'timestamp' ) );
+			$diff    = $share['expires'] - $now;
+			$days    = floor( $diff / ( 60 * 60 * 24 ) );
+			$hours   = floor( ( $diff - $days * ( 60 * 60 * 24 ) ) / ( 60 * 60 ) );
+			$minutes = floor( ( $diff - ( $days * ( 60 * 60 * 24 ) + $hours * ( 60 * 60 ) ) ) / 60 );
+
+			$days_str    = sprintf( _n( '%d day', '%d days', $days, 'draftsforfriends' ), $days );
+			$hours_str   = sprintf( _n( '%d hour', '%d hours', $hours, 'draftsforfriends' ), $hours );
+			$minutes_str = sprintf( _n( '%d minute', '%d minutes', $minutes, 'draftsforfriends' ), $minutes );
+
+			if ( $days > 0 ) {
+				return sprintf( __( '%1$s, %2$s, %3$s', 'draftsforfriends' ), $days_str, $hours_str, $minutes_str );
+			} elseif ( $hours > 0 ) {
+				return sprintf( __( '%1$s, %2$s', 'draftsforfriends' ), $hours_str, $minutes_str );
+			} elseif ( $minutes > 0 ) {
+				return sprintf( __( '%s', 'draftsforfriends' ), $minutes_str );
+			} else {
+				return __( '1 minute', 'draftsforfriends' );
+			}
 		}
 	}
 
