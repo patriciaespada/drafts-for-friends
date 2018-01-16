@@ -1,0 +1,218 @@
+# Copyright (C) 2018 Drafts for Friends
+# This file is distributed under the same license as the Drafts for Friends package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Drafts for Friends 1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/drafts-for-"
+"friends\n"
+"POT-Creation-Date: 2018-01-16 21:23:32+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2018-01-16 23:00+0000\n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.0.5\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: pt\n"
+
+#. Plugin Name of the plugin/theme
+#: drafts-for-friends.php:87 drafts-for-friends.php:386
+#: drafts-for-friends.php:457
+msgid "Drafts for Friends"
+msgstr "Rascunhos para amigos"
+
+#: drafts-for-friends.php:126 drafts-for-friends.php:179
+#: drafts-for-friends.php:223
+msgid ""
+"Could not verify the origin and intent of the request: nonce verification "
+"failed."
+msgstr ""
+"Não foi possível verificar a origem e a intenção da solicitação: falha na "
+"verificação do nonce."
+
+#: drafts-for-friends.php:136
+msgid "Could not find any post with the specified id."
+msgstr "Não foi possível encontrar nenhum artigo com o id especificado."
+
+#: drafts-for-friends.php:142
+msgid "The post is already published."
+msgstr "O artigo já foi publicado."
+
+#: drafts-for-friends.php:154
+msgid "A draft for the post was successfully created."
+msgstr "Um rascunho para o artigo foi criado com sucesso."
+
+#: drafts-for-friends.php:158
+msgid "An error occurred while creating the post draft. Please try again."
+msgstr ""
+"Ocorreu um erro ao criar o rascunho do artigo. Por favor, tente novamente."
+
+#: drafts-for-friends.php:164
+msgid "No post id was found in the request."
+msgstr "Nenhum id do artigo foi encontrado no pedido."
+
+#: drafts-for-friends.php:195
+msgid "The post draft was successfully deleted."
+msgstr "O rascunho do artigo foi excluído com sucesso."
+
+#: drafts-for-friends.php:199
+msgid "An error occurred while deleting the post draft. Please try again."
+msgstr ""
+"Ocorreu um erro ao excluir o rascunho do artigo. Por favor, tente novamente."
+
+#: drafts-for-friends.php:205 drafts-for-friends.php:253
+msgid "No draft post key was found in the request."
+msgstr "Nenhuma chave de rascunho foi encontrada no pedido."
+
+#: drafts-for-friends.php:243
+msgid "The post draft was successfully extended."
+msgstr "O rascunho do artigo foi prorrogado com sucesso."
+
+#: drafts-for-friends.php:247
+msgid "An error occurred while extending the post draft. Please try again."
+msgstr ""
+"Ocorreu um erro ao prolongar o rascunho do artigo. Por favor, tente "
+"novamente."
+
+#: drafts-for-friends.php:297
+msgid "Your Drafts:"
+msgstr "Seus Rascunhos:"
+
+#: drafts-for-friends.php:302
+msgid "Your Scheduled Posts:"
+msgstr "Suas postagens agendada:"
+
+#: drafts-for-friends.php:307
+msgid "Pending Review:"
+msgstr "Revisão pendente:"
+
+#: drafts-for-friends.php:333
+msgid "Expired"
+msgstr "Expirado"
+
+#. translators: %d: days representation
+#: drafts-for-friends.php:341
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "dia"
+msgstr[1] "dias"
+
+#. translators: %d: hours representation
+#: drafts-for-friends.php:343
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] "hora"
+msgstr[1] "horas"
+
+#. translators: %d: minutes representation
+#: drafts-for-friends.php:345
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "minuto"
+msgstr[1] "minutos"
+
+#. translators: %1$d: days string (e.g.: 1 day or 20 days) %2$d: hours string
+#. (e.g.: 1 hour or 20 hours) %3$d: minutes string (e.g.: 1 minute or 20
+#. minutes)
+#: drafts-for-friends.php:354
+msgid "%1$s, %2$s, %3$s"
+msgstr ""
+
+#. translators: %1$d: hours string (e.g.: 1 hour or 20 hours) %2$d: minutes
+#. string (e.g.: 1 minute or 20 minutes)
+#: drafts-for-friends.php:361
+msgid "%1$s, %2$s"
+msgstr ""
+
+#: drafts-for-friends.php:365
+msgid "1 minute"
+msgstr "1 minuto"
+
+#: drafts-for-friends.php:394
+msgid "Currently shared drafts"
+msgstr "Rascunhos atualmente compartilhados"
+
+#: drafts-for-friends.php:398
+msgid "ID"
+msgstr ""
+
+#: drafts-for-friends.php:399
+msgid "Title"
+msgstr "Título"
+
+#: drafts-for-friends.php:400
+msgid "Link"
+msgstr ""
+
+#: drafts-for-friends.php:401
+msgid "Expires After"
+msgstr "Expira após"
+
+#: drafts-for-friends.php:402
+msgid "Actions"
+msgstr "Ações"
+
+#: drafts-for-friends.php:420 drafts-for-friends.php:426
+msgid "Extend"
+msgstr "Prolongar"
+
+#: drafts-for-friends.php:427
+msgid "by"
+msgstr "por"
+
+#: drafts-for-friends.php:430
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: drafts-for-friends.php:441
+msgid "Delete"
+msgstr "Apagar"
+
+#: drafts-for-friends.php:450
+msgid "No shared drafts!"
+msgstr "Nenhum rascunho compartilhado!"
+
+#: drafts-for-friends.php:462
+msgid "Choose a draft"
+msgstr "Escolha um rascunho"
+
+#: drafts-for-friends.php:485
+msgid "Share it"
+msgstr "Compartilhe"
+
+#: drafts-for-friends.php:486
+msgid "for"
+msgstr "para"
+
+#: drafts-for-friends.php:556
+msgid "seconds"
+msgstr "segundos"
+
+#: drafts-for-friends.php:557
+msgid "minutes"
+msgstr "minutos"
+
+#: drafts-for-friends.php:558
+msgid "hours"
+msgstr "horas"
+
+#: drafts-for-friends.php:559
+msgid "days"
+msgstr "dias"
+
+#. Plugin URI of the plugin/theme
+msgid "http://automattic.com/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Now you don't need to add friends as users to the blog in order to let them "
+"preview your drafts"
+msgstr ""
+"Agora você não precisa adicionar amigos como usuários ao blog para permitir "
+"que eles aperfeiçoem seus rascunhos"
+
+#. Author of the plugin/theme
+msgid "Patrícia Espada"
+msgstr ""
