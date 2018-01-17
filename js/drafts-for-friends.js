@@ -15,7 +15,7 @@ jQuery( document ).ready(
 			function(e) {
 				e.preventDefault();
 
-				shared_key = jQuery( this ).data( 'shared-key' );
+				var shared_key = jQuery( this ).data( 'shared-key' );
 
 				jQuery( 'form.draftsforfriends-extend[data-shared-key="' + shared_key + '"]' ).show();
 				jQuery( this ).hide();
@@ -28,7 +28,7 @@ jQuery( document ).ready(
 			function(e) {
 				e.preventDefault();
 
-				shared_key = jQuery( this ).data( 'shared-key' );
+				var shared_key = jQuery( this ).data( 'shared-key' );
 
 				jQuery( 'form.draftsforfriends-extend[data-shared-key="' + shared_key + '"]' ).hide();
 				jQuery( '.draftsforfriends-extend-button[data-shared-key="' + shared_key + '"]' ).show();
@@ -39,9 +39,24 @@ jQuery( document ).ready(
 			function(e) {
 				e.preventDefault();
 
-				shared_key = jQuery( this ).data( 'shared-key' );
+				var shared_key = jQuery( this ).data( 'shared-key' );
 
 				jQuery( 'form.draftsforfriends-delete[data-shared-key="' + shared_key + '"]' ).submit();
+			}
+		);
+
+		jQuery( '.draftsforfriends-copy-link' ).click(
+			function(e) {
+				e.preventDefault();
+
+				var link = jQuery( this ).data( 'link' );
+				console.log( link );
+
+				var temp = jQuery( "<input>" );
+				jQuery( "body" ).append( temp );
+				temp.val( link ).select();
+				document.execCommand( "copy" );
+				temp.remove();
 			}
 		);
 
