@@ -411,10 +411,21 @@ foreach ( $s as $share ) :
 	$expire_time = $this->get_time_to_expire( $share );
 ?>
 	<tr>
-		<td><?php echo esc_html( $p->ID ); ?></td>
-		<td><?php echo esc_html( $p->post_title ); ?></td>
-		<td><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_url( $url ); ?></a></td>
-		<td><?php echo esc_html( $expire_time ); ?></td>
+		<td class="id">
+			<?php echo esc_html( absint( $p->ID ) ); ?>
+		</td>
+		<td class="title">
+			<?php echo esc_html( $p->post_title ); ?>
+		</td>
+		<td class="link">
+			<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_url( $url ); ?></a>
+			<div class="row-actions">
+				<a class="draftsforfriends-copy-link" href="#" title="Copy Link" data-link="<?php echo esc_url( $url ); ?>">Copy Link</a>
+			</div>
+		</td>
+		<td class="expires-after">
+			<?php echo esc_html( $expire_time ); ?>
+		</td>
 		<td class="actions">
 			<a class="draftsforfriends-extend-button" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
 					<?php esc_html_e( 'Extend', 'draftsforfriends' ); ?>
