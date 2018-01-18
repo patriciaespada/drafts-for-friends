@@ -30,9 +30,15 @@ class DraftsForFriends {
 	 */
 	public function init() {
 		global $current_user;
+
 		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
+
 		add_filter( 'the_posts', array( $this, 'the_posts_intercept' ) );
 		add_filter( 'posts_results', array( $this, 'posts_results_intercept' ) );
+
+		add_action( 'wp_ajax_delete', array( $this, 'process_delete' ) );
+		add_action( 'wp_ajax_extend', array( $this, 'process_extend' ) );
+		add_action( 'wp_ajax_sharedraft', array( $this, 'process_share_draft' ) );
 
 		$this->admin_options = $this->get_admin_options();
 
@@ -116,14 +122,16 @@ class DraftsForFriends {
 	/**
 	 * Process share a new draft.
 	 *
-	 * @param array $params Array with the options of the new shared draft.
-	 * @return string A string saying why the post wasn't shared or a new line in the table will be displayed
+	 * @return void The response is either an error message, or the html with the representation of the new draft.
 	 */
-	public function process_share_draft( $params ) {
+	public function process_share_draft() {
+		$params = filter_input_array( INPUT_POST );
+
 		if ( empty( $params['share-draft-nonce'] ) || ! wp_verify_nonce( $params['share-draft-nonce'], 'share-draft' ) ) {
-			return new WP_Error(
-				'invalid_shared_draft_nonce',
-				__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' )
+			wp_send_json_error(
+				array(
+					'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),
+				)
 			);
 		}
 
@@ -131,37 +139,42 @@ class DraftsForFriends {
 		if ( isset( $params['post_id'] ) ) {
 			$p = get_post( $params['post_id'] );
 			if ( empty( $p ) ) {
-				return new WP_Error(
-					'invalid_post_id',
-					__( 'Could not find any post with the specified id.', 'draftsforfriends' )
+				wp_send_json_error(
+					array(
+						'message' => esc_html( 'Could not find any post with the specified id.', 'draftsforfriends' ),
+					)
 				);
 			}
 			if ( 'publish' === get_post_status( $p ) ) {
-				return new WP_Error(
-					'invalid_post_status',
-					__( 'The post is already published.', 'draftsforfriends' )
+				wp_send_json_error(
+					array(
+						'message' => esc_html( 'The post is already published.', 'draftsforfriends' ),
+					)
 				);
 			}
 
-			$this->user_options['shared'][] = array(
+			$share                          = array(
 				'id'      => $p->ID,
 				'expires' => time() + $this->calc( $params ),
 				'key'     => 'baba_' . wp_generate_password( 12, false ),
 			);
+			$this->user_options['shared'][] = $share;
 
 			$result = $this->save_admin_options();
 			if ( $result ) {
-				return __( 'A draft for the post was successfully created.', 'draftsforfriends' );
+				include_once dirname( __FILE__ ) . '/parts/drafts-for-friends-draft.php';
 			} else {
-				return new WP_Error(
-					'error_draft_creation',
-					__( 'An error occurred while creating the post draft. Please try again.', 'draftsforfriends' )
+				wp_send_json_error(
+					array(
+						'message' => esc_html( 'An error occurred while creating the post draft. Please try again.', 'draftsforfriends' ),
+					)
 				);
 			}
 		} else {
-			return new WP_Error(
-				'invalid_post_id',
-				__( 'No post id was found in the request.', 'draftsforfriends' )
+			wp_send_json_error(
+				array(
+					'message' => esc_html( 'No post id was found in the request.', 'draftsforfriends' ),
+				)
 			);
 		}
 	}
@@ -169,14 +182,16 @@ class DraftsForFriends {
 	/**
 	 * Delete the shared post.
 	 *
-	 * @param array $params Array of shared draft options.
-	 * @return string A string saying why the draft wasn't deleted or an update to the table
+	 * @return void The response is a json with an error message or with an successfull message
 	 */
-	public function process_delete( $params ) {
+	public function process_delete() {
+		$params = filter_input_array( INPUT_POST );
+
 		if ( empty( $params['delete-nonce'] ) || ! wp_verify_nonce( $params['delete-nonce'], 'delete' ) ) {
-			return new WP_Error(
-				'invalid_delete_nonce',
-				__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' )
+			wp_send_json_error(
+				array(
+					'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),
+				)
 			);
 		}
 
@@ -192,17 +207,23 @@ class DraftsForFriends {
 
 			$result = $this->save_admin_options();
 			if ( $result ) {
-				return __( 'The post draft was successfully deleted.', 'draftsforfriends' );
+				wp_send_json_success(
+					array(
+						'message' => esc_html( 'The post draft was successfully deleted.', 'draftsforfriends' ),
+					)
+				);
 			} else {
-				return new WP_Error(
-					'error_draft_deletion',
-					__( 'An error occurred while deleting the post draft. Please try again.', 'draftsforfriends' )
+				wp_send_json_error(
+					array(
+						'message' => esc_html( 'An error occurred while deleting the post draft. Please try again.', 'draftsforfriends' ),
+					)
 				);
 			}
 		} else {
-			return new WP_Error(
-				'invalid_key',
-				__( 'No draft post key was found in the request.', 'draftsforfriends' )
+			wp_send_json_error(
+				array(
+					'message' => esc_html( 'No draft post key was found in the request.', 'draftsforfriends' ),
+				)
 			);
 		}
 	}
@@ -212,20 +233,22 @@ class DraftsForFriends {
 	 * If the expiration date is in the past then we apply the new expiration date taking into account the
 	 * current date. If it's not in the past, then we simply add the amount of expiration to the existing one.
 	 *
-	 * @param array $params Array of shared draft options.
-	 * @return string  A string saying why the draft wasn't extended or update the expiration date on the correspondent
-	 * line in the list for the shared post
+	 * @return void  The response is a json with an error message or with an successfull message and the new expiration time
 	 */
-	public function process_extend( $params ) {
+	public function process_extend() {
+		$params = filter_input_array( INPUT_POST );
+
 		if ( empty( $params['extend-nonce'] ) || ! wp_verify_nonce( $params['extend-nonce'], 'extend' ) ) {
-			return new WP_Error(
-				'invalid_extend_nonce',
-				__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' )
+			wp_send_json_error(
+				array(
+					'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),
+				)
 			);
 		}
 
 		if ( isset( $params['key'] ) ) {
-			$shared = array();
+			$shared       = array();
+			$result_share = array();
 			foreach ( $this->user_options['shared'] as $share ) {
 				if ( $share['key'] === $params['key'] ) {
 					if ( $share['expires'] < time() ) {
@@ -233,6 +256,7 @@ class DraftsForFriends {
 					} else {
 						$share['expires'] += $this->calc( $params );
 					}
+					$result_share = $share;
 				}
 				$shared[] = $share;
 			}
@@ -240,17 +264,24 @@ class DraftsForFriends {
 
 			$result = $this->save_admin_options();
 			if ( $result ) {
-				return __( 'The post draft was successfully extended.', 'draftsforfriends' );
+				wp_send_json_success(
+					array(
+						'expires' => esc_html( $this->get_time_to_expire( $result_share ) ),
+						'message' => esc_html( 'The post draft was successfully extended.', 'draftsforfriends' ),
+					)
+				);
 			} else {
-				return new WP_Error(
-					'error_draft_extention',
-					__( 'An error occurred while extending the post draft. Please try again.', 'draftsforfriends' )
+				wp_send_json_error(
+					array(
+						'message' => esc_html( 'An error occurred while extending the post draft. Please try again', 'draftsforfriends' ),
+					)
 				);
 			}
 		} else {
-			return new WP_Error(
-				'invalid_key',
-				__( 'No draft post key was found in the request.', 'draftsforfriends' )
+			wp_send_json_error(
+				array(
+					'message' => esc_html( 'No draft post key was found in the request.', 'draftsforfriends' ),
+				)
 			);
 		}
 	}
@@ -373,133 +404,9 @@ class DraftsForFriends {
 	 * @return void
 	 */
 	public function output_existing_menu_sub_admin_page() {
-		if ( filter_input( INPUT_POST, 'draftsforfriends_submit', FILTER_SANITIZE_STRING ) ) {
-			$t = $this->process_share_draft( filter_input_array( INPUT_POST ) );
-		} elseif ( 'extend' === filter_input( INPUT_POST, 'action', FILTER_SANITIZE_STRING ) ) {
-			$t = $this->process_extend( filter_input_array( INPUT_POST ) );
-		} elseif ( 'delete' === filter_input( INPUT_POST, 'action', FILTER_SANITIZE_STRING ) ) {
-			$t = $this->process_delete( filter_input_array( INPUT_POST ) );
-		}
-		$ds = $this->get_drafts();
-?>
-	<div class="wrap">
-		<h2><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h2>
-<?php if ( isset( $t ) ) { ?>
-	<?php if ( is_wp_error( $t ) ) { ?>
-		<div class="notice notice-error"><p><?php echo esc_html( $t->get_error_message() ); ?></p></div>
-	<?php } else { ?>
-		<div class="notice notice-success"><p><?php echo esc_html( $t ); ?></p></div>
-	<?php }; ?>
-<?php }; ?>
-		<h3><?php esc_html_e( 'Currently shared drafts', 'draftsforfriends' ); ?></h3>
-		<table class="widefat">
-			<thead>
-			<tr>
-				<th><?php esc_html_e( 'ID', 'draftsforfriends' ); ?></th>
-				<th><?php esc_html_e( 'Title', 'draftsforfriends' ); ?></th>
-				<th><?php esc_html_e( 'Link', 'draftsforfriends' ); ?></th>
-				<th><?php esc_html_e( 'Expires After', 'draftsforfriends' ); ?></th>
-				<th colspan="2" class="actions"><?php esc_html_e( 'Actions', 'draftsforfriends' ); ?></th>
-			</tr>
-			</thead>
-			<tbody>
-<?php
-		$s = $this->get_shared();
-foreach ( $s as $share ) :
-	$p           = get_post( $share['id'] );
-	$url         = get_bloginfo( 'url' ) . '/?p=' . $p->ID . '&draftsforfriends=' . $share['key'];
-	$expire_time = $this->get_time_to_expire( $share );
-?>
-	<tr>
-		<td class="id">
-			<?php echo esc_html( absint( $p->ID ) ); ?>
-		</td>
-		<td class="title">
-			<?php echo esc_html( $p->post_title ); ?>
-		</td>
-		<td class="link">
-			<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_url( $url ); ?></a>
-			<div class="row-actions">
-				<a class="draftsforfriends-copy-link" href="#" title="Copy Link" data-link="<?php echo esc_url( $url ); ?>">Copy Link</a>
-			</div>
-		</td>
-		<td class="expires-after">
-			<?php echo esc_html( $expire_time ); ?>
-		</td>
-		<td class="actions">
-			<a class="draftsforfriends-extend-button" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
-					<?php esc_html_e( 'Extend', 'draftsforfriends' ); ?>
-			</a>
-			<form class="draftsforfriends-extend" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" method="post">
-				<?php wp_nonce_field( 'extend', 'extend-nonce' ); ?>
-				<input type="hidden" name="action" value="extend" />
-				<input type="hidden" name="key" value="<?php echo esc_attr( $share['key'] ); ?>" />
-				<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php esc_attr_e( 'Extend', 'draftsforfriends' ); ?>"/>
-				<?php esc_html_e( 'by', 'draftsforfriends' ); ?>
-				<?php $this->tmpl_measure_select(); ?>
-				<a class="draftsforfriends-extend-cancel" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
-					<?php esc_html_e( 'Cancel', 'draftsforfriends' ); ?>
-				</a>
-			</form>
-		</td>
-		<td class="actions">
-			<form class="draftsforfriends-delete" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" method='post'>
-				<?php wp_nonce_field( 'delete', 'delete-nonce' ); ?>
-				<input type='hidden' name='action' value='delete' />
-				<input type='hidden' name='key' value='<?php echo esc_attr( $share['key'] ); ?>' />
-			</form>
-			<a class="draftsforfriends-delete-button" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
-					<?php esc_html_e( 'Delete', 'draftsforfriends' ); ?>
-			</a>
-		</td>
-	</tr>
-<?php
-		endforeach;
-if ( empty( $s ) ) :
-?>
-	<tr>
-		<td colspan="5"><?php esc_html_e( 'No shared drafts!', 'draftsforfriends' ); ?></td>
-	</tr>
-<?php
-		endif;
-?>
-			</tbody>
-		</table>
-		<h3><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h3>
-		<form id="draftsforfriends-share" method="post">
-			<?php wp_nonce_field( 'share-draft', 'share-draft-nonce' ); ?>
-		<p>
-			<select id="draftsforfriends-postid" 	name="post_id">
-			<option value=""><?php esc_html_e( 'Choose a draft', 'draftsforfriends' ); ?></option>
-<?php
-foreach ( $ds as $dt ) :
-	if ( $dt[1] ) :
-?>
-	<option value="" disabled="disabled"></option>
-	<option value="" disabled="disabled"><?php echo esc_html( $dt[0] ); ?></option>
-<?php
-foreach ( $dt[2] as $d ) :
-	if ( empty( $d->post_title ) ) {
-		continue;
-	}
-?>
-<option value="<?php echo esc_attr( $d->ID ); ?>"><?php echo esc_html( $d->post_title ); ?></option>
-<?php
-		endforeach;
-	endif;
-		endforeach;
-?>
-			</select>
-		</p>
-		<p>
-			<input type="submit" class="button" name="draftsforfriends_submit"
-				value="<?php esc_attr_e( 'Share it', 'draftsforfriends' ); ?>" />
-			<?php esc_html_e( 'for', 'draftsforfriends' ); ?>
-			<?php $this->tmpl_measure_select(); ?>	
-		</p>
-		</form>
-		</div>
-<?php
+
+		include_once dirname( __FILE__ ) . '/parts/drafts-for-friends-page.php';
+
 	}
 
 	/**
@@ -556,25 +463,6 @@ foreach ( $dt[2] as $d ) :
 			$this->shared_post = null;
 			return $pp;
 		}
-	}
-
-	/**
-	 * Template for the measure select.
-	 *
-	 * @return void
-	 */
-	public function tmpl_measure_select() {
-		$secs  = __( 'seconds', 'draftsforfriends' );
-		$mins  = __( 'minutes', 'draftsforfriends' );
-		$hours = __( 'hours', 'draftsforfriends' );
-		$days  = __( 'days', 'draftsforfriends' );
-		print( '<input name="expires" type="text" value="2" size="4"/>
-			<select name="measure">
-				<option value="s">' . esc_html( $secs ) . '</option>
-				<option value="m">' . esc_html( $mins ) . '</option>
-				<option value="h" selected="selected">' . esc_html( $hours ) . '</option>
-				<option value="d">' . esc_html( $days ) . '</option>
-			</select>' );
 	}
 }
 

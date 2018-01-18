@@ -1,5 +1,5 @@
-a.draftsforfriends-extend-button, a.draftsforfriends-extend-cancel {
-	display: none;
+a.draftsforfriends-extend-cancel {
+	display: inline;
 }
 form.draftsforfriends-extend {
 	white-space: nowrap;
