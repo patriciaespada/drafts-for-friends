@@ -24,7 +24,7 @@ $expire_time = $this->get_time_to_expire( $share );
 	<td class="link">
 		<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_url( $url ); ?></a>
 		<div class="row-actions">
-			<a class="draftsforfriends-copy-link" href="#" title="Copy Link" data-link="<?php echo esc_url( $url ); ?>">Copy Link</a>
+			<a class="draftsforfriends-copy-link" href="#" title="<?php esc_attr_e( 'Copy Link', 'drafts-for-friends' ); ?>" data-link="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Copy Link', 'drafts-for-friends' ); ?></a>
 		</div>
 	</td>
 	<td class="expires-after">
@@ -32,16 +32,16 @@ $expire_time = $this->get_time_to_expire( $share );
 	</td>
 	<td class="actions">
 		<a class="draftsforfriends-extend-button" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
-				<?php esc_html_e( 'Extend', 'draftsforfriends' ); ?>
+				<?php esc_html_e( 'Extend', 'drafts-for-friends' ); ?>
 		</a>
 		<form class="draftsforfriends-extend" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" method="post">
 			<input type="hidden" name="action" value="extend" />
 			<input type="hidden" name="key" value="<?php echo esc_attr( $share['key'] ); ?>" />
-			<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php esc_attr_e( 'Extend', 'draftsforfriends' ); ?>"/>
-			<?php esc_html_e( 'by', 'draftsforfriends' ); ?>
+			<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php esc_attr_e( 'Extend', 'drafts-for-friends' ); ?>"/>
+			<?php esc_html_e( 'by', 'drafts-for-friends' ); ?>
 			<?php require dirname( __FILE__ ) . '/drafts-for-friends-measures.php'; ?>
 			<a class="draftsforfriends-extend-cancel" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
-				<?php esc_html_e( 'Cancel', 'draftsforfriends' ); ?>
+				<?php esc_html_e( 'Cancel', 'drafts-for-friends' ); ?>
 			</a>
 		</form>
 	</td>
@@ -51,7 +51,7 @@ $expire_time = $this->get_time_to_expire( $share );
 			<input type='hidden' name='key' value='<?php echo esc_attr( $share['key'] ); ?>' />
 		</form>
 		<a class="draftsforfriends-delete-button" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" href="#">
-				<?php esc_html_e( 'Delete', 'draftsforfriends' ); ?>
+				<?php esc_html_e( 'Delete', 'drafts-for-friends' ); ?>
 		</a>
 	</td>
 </tr>

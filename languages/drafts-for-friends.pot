@@ -2,10 +2,10 @@
 # This file is distributed under the same license as the Drafts for Friends package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Drafts for Friends 1.0\n"
+"Project-Id-Version: Drafts for Friends 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/drafts-for-"
 "friends\n"
-"POT-Creation-Date: 2018-01-18 13:53:58+00:00\n"
+"POT-Creation-Date: 2018-01-18 19:42:31+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,44 +13,91 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#. #-#-#-#-#  drafts-for-friends.pot (Drafts for Friends 1.0)  #-#-#-#-#
+#. #-#-#-#-#  drafts-for-friends.pot (Drafts for Friends 1.0.0)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
-#: class-drafts-for-friends.php:113 parts/drafts-for-friends-page.php:16
+#: class-drafts-for-friends.php:79 parts/drafts-for-friends-page.php:17
 msgid "Drafts for Friends"
 msgstr ""
 
-#: class-drafts-for-friends.php:348
+#: class-drafts-for-friends.php:114
+msgid "A draft for the post was successfully created."
+msgstr ""
+
+#: class-drafts-for-friends.php:178 class-drafts-for-friends.php:238
+#: class-drafts-for-friends.php:289
+msgid ""
+"Could not verify the origin and intent of the request: nonce verification "
+"failed."
+msgstr ""
+
+#: class-drafts-for-friends.php:189
+msgid "Could not find any post with the specified id."
+msgstr ""
+
+#: class-drafts-for-friends.php:196
+msgid "The post is already published."
+msgstr ""
+
+#: class-drafts-for-friends.php:214
+msgid "An error occurred while creating the post draft. Please try again."
+msgstr ""
+
+#: class-drafts-for-friends.php:221
+msgid "No post id was found in the request."
+msgstr ""
+
+#: class-drafts-for-friends.php:257
+msgid "The post draft was successfully deleted."
+msgstr ""
+
+#: class-drafts-for-friends.php:263
+msgid "An error occurred while deleting the post draft. Please try again."
+msgstr ""
+
+#: class-drafts-for-friends.php:270 class-drafts-for-friends.php:328
+msgid "No draft post key was found in the request."
+msgstr ""
+
+#: class-drafts-for-friends.php:315
+msgid "The post draft was successfully extended."
+msgstr ""
+
+#: class-drafts-for-friends.php:321
+msgid "An error occurred while extending the post draft. Please try again"
+msgstr ""
+
+#: class-drafts-for-friends.php:373
 msgid "Your Drafts:"
 msgstr ""
 
-#: class-drafts-for-friends.php:353
+#: class-drafts-for-friends.php:378
 msgid "Your Scheduled Posts:"
 msgstr ""
 
-#: class-drafts-for-friends.php:358
+#: class-drafts-for-friends.php:383
 msgid "Pending Review:"
 msgstr ""
 
-#: class-drafts-for-friends.php:384
+#: class-drafts-for-friends.php:409
 msgid "Expired"
 msgstr ""
 
 #. translators: %d: days representation
-#: class-drafts-for-friends.php:392
+#: class-drafts-for-friends.php:417
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: hours representation
-#: class-drafts-for-friends.php:394
+#: class-drafts-for-friends.php:419
 msgid "%d hour"
 msgid_plural "%d hours"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: minutes representation
-#: class-drafts-for-friends.php:396
+#: class-drafts-for-friends.php:421
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] ""
@@ -59,18 +106,22 @@ msgstr[1] ""
 #. translators: %1$d: days string (e.g.: 1 day or 20 days) %2$d: hours string
 #. (e.g.: 1 hour or 20 hours) %3$d: minutes string (e.g.: 1 minute or 20
 #. minutes)
-#: class-drafts-for-friends.php:405
+#: class-drafts-for-friends.php:430
 msgid "%1$s, %2$s, %3$s"
 msgstr ""
 
 #. translators: %1$d: hours string (e.g.: 1 hour or 20 hours) %2$d: minutes
 #. string (e.g.: 1 minute or 20 minutes)
-#: class-drafts-for-friends.php:412
+#: class-drafts-for-friends.php:437
 msgid "%1$s, %2$s"
 msgstr ""
 
-#: class-drafts-for-friends.php:416
+#: class-drafts-for-friends.php:441
 msgid "1 minute"
+msgstr ""
+
+#: parts/drafts-for-friends-draft.php:27
+msgid "Copy Link"
 msgstr ""
 
 #: parts/drafts-for-friends-draft.php:35 parts/drafts-for-friends-draft.php:40
@@ -105,47 +156,52 @@ msgstr ""
 msgid "days"
 msgstr ""
 
-#: parts/drafts-for-friends-page.php:19
-msgid "Currently shared drafts"
-msgstr ""
-
-#: parts/drafts-for-friends-page.php:23
-msgid "ID"
-msgstr ""
-
-#: parts/drafts-for-friends-page.php:24
-msgid "Title"
-msgstr ""
-
-#: parts/drafts-for-friends-page.php:25
-msgid "Link"
-msgstr ""
-
-#: parts/drafts-for-friends-page.php:26
-msgid "Expires After"
+#. translators: %s: plugin version representation
+#: parts/drafts-for-friends-page.php:21
+msgid "v%s"
 msgstr ""
 
 #: parts/drafts-for-friends-page.php:27
+msgid "Currently shared drafts"
+msgstr ""
+
+#: parts/drafts-for-friends-page.php:31
+msgid "ID"
+msgstr ""
+
+#: parts/drafts-for-friends-page.php:32
+msgid "Title"
+msgstr ""
+
+#: parts/drafts-for-friends-page.php:33
+msgid "Link"
+msgstr ""
+
+#: parts/drafts-for-friends-page.php:34
+msgid "Expires After"
+msgstr ""
+
+#: parts/drafts-for-friends-page.php:35
 msgid "Actions"
 msgstr ""
 
-#: parts/drafts-for-friends-page.php:40
+#: parts/drafts-for-friends-page.php:48
 msgid "No shared drafts!"
 msgstr ""
 
-#: parts/drafts-for-friends-page.php:44
+#: parts/drafts-for-friends-page.php:52
 msgid "Share a draft with friends"
 msgstr ""
 
-#: parts/drafts-for-friends-page.php:49
+#: parts/drafts-for-friends-page.php:57
 msgid "Choose a draft"
 msgstr ""
 
-#: parts/drafts-for-friends-page.php:71
+#: parts/drafts-for-friends-page.php:79
 msgid "Share it"
 msgstr ""
 
-#: parts/drafts-for-friends-page.php:72
+#: parts/drafts-for-friends-page.php:80
 msgid "for"
 msgstr ""
 

@@ -19,7 +19,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 	 * Plugin URI: http://automattic.com/
 	 * Description: Now you don't need to add friends as users to the blog in order to let them preview your drafts
 	 * Author: Patrícia Espada
-	 * Text Domain: draftsforfriends
+	 * Text Domain: drafts-for-friends
 	 * Domain Path: /languages
 	 * Version: 1.0.0
 	 */
@@ -66,7 +66,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return void
 		 */
 		public function draftsforfriends_load_textdomain() {
-			load_plugin_textdomain( 'draftsforfriends', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+			load_plugin_textdomain( 'drafts-for-friends', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		}
 
 		/**
@@ -76,8 +76,8 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 */
 		public function add_admin_pages() {
 			add_submenu_page(
-				'edit.php', __( 'Drafts for Friends', 'draftsforfriends' ), __( 'Drafts for Friends', 'draftsforfriends' ),
-				1, 'draftsforfriends', array( $this, 'output_existing_menu_sub_admin_page' )
+				'edit.php', __( 'Drafts for Friends', 'drafts-for-friends' ), __( 'Drafts for Friends', 'drafts-for-friends' ),
+				1, 'drafts-for-friends', array( $this, 'output_existing_menu_sub_admin_page' )
 			);
 		}
 
@@ -87,26 +87,31 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return void
 		 */
 		public function add_plugin_scripts() {
-			wp_enqueue_style( 'draftsforfriends', plugins_url( 'css/drafts-for-friends.css', __FILE__ ) );
+			wp_enqueue_style( 'drafts-for-friends', plugins_url( 'css/drafts-for-friends.css', __FILE__ ) );
 			wp_enqueue_script( 'jquery' );
-			wp_enqueue_script( 'draftsforfriends', plugins_url( 'js/drafts-for-friends.js', __FILE__ ), array( 'jquery' ) );
+			wp_enqueue_script( 'drafts-for-friends', plugins_url( 'js/drafts-for-friends.js', __FILE__ ), array( 'jquery' ) );
 
 			wp_localize_script(
-				'draftsforfriends', 'wp_ajax_delete', array(
+				'drafts-for-friends', 'wp_ajax_delete', array(
 					'ajaxurl'    => admin_url( 'admin-ajax.php', $protocol ),
 					'ajax_nonce' => wp_create_nonce( 'delete' ),
 				)
 			);
 			wp_localize_script(
-				'draftsforfriends', 'wp_ajax_extend', array(
+				'drafts-for-friends', 'wp_ajax_extend', array(
 					'ajaxurl'    => admin_url( 'admin-ajax.php', $protocol ),
 					'ajax_nonce' => wp_create_nonce( 'extend' ),
 				)
 			);
 			wp_localize_script(
-				'draftsforfriends', 'wp_ajax_sharedraft', array(
+				'drafts-for-friends', 'wp_ajax_sharedraft', array(
 					'ajaxurl'    => admin_url( 'admin-ajax.php', $protocol ),
 					'ajax_nonce' => wp_create_nonce( 'sharedraft' ),
+				)
+			);
+			wp_localize_script(
+				'drafts-for-friends', 'sharedraft_success_message', array(
+					'message' => esc_html__( 'A draft for the post was successfully created.', 'drafts-for-friends' ),
 				)
 			);
 		}
@@ -170,7 +175,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 			if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'sharedraft' ) ) {
 				wp_send_json_error(
 					array(
-						'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),
+						'message' => esc_html__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'drafts-for-friends' ),
 					)
 				);
 			}
@@ -181,14 +186,14 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 				if ( empty( $p ) ) {
 					wp_send_json_error(
 						array(
-							'message' => esc_html( 'Could not find any post with the specified id.', 'draftsforfriends' ),
+							'message' => esc_html__( 'Could not find any post with the specified id.', 'drafts-for-friends' ),
 						)
 					);
 				}
 				if ( 'publish' === get_post_status( $p ) ) {
 					wp_send_json_error(
 						array(
-							'message' => esc_html( 'The post is already published.', 'draftsforfriends' ),
+							'message' => esc_html__( 'The post is already published.', 'drafts-for-friends' ),
 						)
 					);
 				}
@@ -206,14 +211,14 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 				} else {
 					wp_send_json_error(
 						array(
-							'message' => esc_html( 'An error occurred while creating the post draft. Please try again.', 'draftsforfriends' ),
+							'message' => esc_html__( 'An error occurred while creating the post draft. Please try again.', 'drafts-for-friends' ),
 						)
 					);
 				}
 			} else {
 				wp_send_json_error(
 					array(
-						'message' => esc_html( 'No post id was found in the request.', 'draftsforfriends' ),
+						'message' => esc_html__( 'No post id was found in the request.', 'drafts-for-friends' ),
 					)
 				);
 			}
@@ -230,7 +235,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 			if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'delete' ) ) {
 				wp_send_json_error(
 					array(
-						'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),
+						'message' => esc_html__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'drafts-for-friends' ),
 					)
 				);
 			}
@@ -249,20 +254,20 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 				if ( $result ) {
 					wp_send_json_success(
 						array(
-							'message' => esc_html( 'The post draft was successfully deleted.', 'draftsforfriends' ),
+							'message' => esc_html__( 'The post draft was successfully deleted.', 'drafts-for-friends' ),
 						)
 					);
 				} else {
 					wp_send_json_error(
 						array(
-							'message' => esc_html( 'An error occurred while deleting the post draft. Please try again.', 'draftsforfriends' ),
+							'message' => esc_html__( 'An error occurred while deleting the post draft. Please try again.', 'drafts-for-friends' ),
 						)
 					);
 				}
 			} else {
 				wp_send_json_error(
 					array(
-						'message' => esc_html( 'No draft post key was found in the request.', 'draftsforfriends' ),
+						'message' => esc_html__( 'No draft post key was found in the request.', 'drafts-for-friends' ),
 					)
 				);
 			}
@@ -281,7 +286,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 			if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'extend' ) ) {
 				wp_send_json_error(
 					array(
-						'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),
+						'message' => esc_html__( 'Could not verify the origin and intent of the request: nonce verification failed.', 'drafts-for-friends' ),
 					)
 				);
 			}
@@ -307,20 +312,20 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 					wp_send_json_success(
 						array(
 							'expires' => esc_html( $this->get_time_to_expire( $result_share ) ),
-							'message' => esc_html( 'The post draft was successfully extended.', 'draftsforfriends' ),
+							'message' => esc_html__( 'The post draft was successfully extended.', 'drafts-for-friends' ),
 						)
 					);
 				} else {
 					wp_send_json_error(
 						array(
-							'message' => esc_html( 'An error occurred while extending the post draft. Please try again', 'draftsforfriends' ),
+							'message' => esc_html__( 'An error occurred while extending the post draft. Please try again', 'drafts-for-friends' ),
 						)
 					);
 				}
 			} else {
 				wp_send_json_error(
 					array(
-						'message' => esc_html( 'No draft post key was found in the request.', 'draftsforfriends' ),
+						'message' => esc_html__( 'No draft post key was found in the request.', 'drafts-for-friends' ),
 					)
 				);
 			}
@@ -365,17 +370,17 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 			// Build the select dropdown for choosing the draft.
 			$ds = array(
 				array(
-					__( 'Your Drafts:', 'draftsforfriends' ),
+					__( 'Your Drafts:', 'drafts-for-friends' ),
 					count( $my_drafts ),
 					$my_drafts,
 				),
 				array(
-					__( 'Your Scheduled Posts:', 'draftsforfriends' ),
+					__( 'Your Scheduled Posts:', 'drafts-for-friends' ),
 					count( $my_scheduled ),
 					$my_scheduled,
 				),
 				array(
-					__( 'Pending Review:', 'draftsforfriends' ),
+					__( 'Pending Review:', 'drafts-for-friends' ),
 					count( $pending ),
 					$pending,
 				),
@@ -401,7 +406,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		private function get_time_to_expire( $share ) {
 			$now = current_time( 'timestamp' );
 			if ( $share['expires'] < $now ) {
-				return __( 'Expired', 'draftsforfriends' );
+				return __( 'Expired', 'drafts-for-friends' );
 			} else {
 				$diff    = $share['expires'] - $now;
 				$days    = floor( $diff / ( 60 * 60 * 24 ) );
@@ -409,11 +414,11 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 				$minutes = floor( ( $diff - ( $days * ( 60 * 60 * 24 ) + $hours * ( 60 * 60 ) ) ) / 60 );
 
 				/* translators: %d: days representation */
-				$days_str = sprintf( _n( '%d day', '%d days', $days, 'draftsforfriends' ), $days );
+				$days_str = sprintf( _n( '%d day', '%d days', $days, 'drafts-for-friends' ), $days );
 				/* translators: %d: hours representation */
-				$hours_str = sprintf( _n( '%d hour', '%d hours', $hours, 'draftsforfriends' ), $hours );
+				$hours_str = sprintf( _n( '%d hour', '%d hours', $hours, 'drafts-for-friends' ), $hours );
 				/* translators: %d: minutes representation */
-				$minutes_str = sprintf( _n( '%d minute', '%d minutes', $minutes, 'draftsforfriends' ), $minutes );
+				$minutes_str = sprintf( _n( '%d minute', '%d minutes', $minutes, 'drafts-for-friends' ), $minutes );
 
 				if ( $days > 0 ) {
 					/*
@@ -422,18 +427,18 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 					* %2$d: hours string (e.g.: 1 hour or 20 hours)
 					* %3$d: minutes string (e.g.: 1 minute or 20 minutes)
 					*/
-					return sprintf( __( '%1$s, %2$s, %3$s', 'draftsforfriends' ), $days_str, $hours_str, $minutes_str );
+					return sprintf( __( '%1$s, %2$s, %3$s', 'drafts-for-friends' ), $days_str, $hours_str, $minutes_str );
 				} elseif ( $hours > 0 ) {
 					/*
 					* translators:
 					* %1$d: hours string (e.g.: 1 hour or 20 hours)
 					* %2$d: minutes string (e.g.: 1 minute or 20 minutes)
 					*/
-					return sprintf( __( '%1$s, %2$s', 'draftsforfriends' ), $hours_str, $minutes_str );
+					return sprintf( __( '%1$s, %2$s', 'drafts-for-friends' ), $hours_str, $minutes_str );
 				} elseif ( $minutes > 0 ) {
 					return $minutes_str;
 				} else {
-					return __( '1 minute', 'draftsforfriends' );
+					return __( '1 minute', 'drafts-for-friends' );
 				}
 			}
 		}
@@ -456,7 +461,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return boolean True if the url matches, false otherwise
 		 */
 		public function can_view( $pid ) {
-			$key = filter_input( INPUT_GET, 'draftsforfriends', FILTER_SANITIZE_STRING );
+			$key = filter_input( INPUT_GET, 'drafts-for-friends', FILTER_SANITIZE_STRING );
 			if ( empty( $key ) ) {
 				return false;
 			}

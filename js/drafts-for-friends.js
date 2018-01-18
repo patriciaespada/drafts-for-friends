@@ -241,7 +241,7 @@ jQuery( document ).ready(
 							} else {
 								jQuery( 'tr.empty-list' ).hide();
 								jQuery( 'table.widefat' ).append( response );
-								jQuery( '.notice.notice-success' ).html( '<p>A draft for the post was successfully created.</p>' ).slideDown();
+								jQuery( '.notice.notice-success' ).html( '<p>' + sharedraft_success_message.message + '</p>' ).slideDown();
 							}
 						},
 						error: function ( errorThrown ) {

@@ -14,25 +14,25 @@ $ds = $this->get_drafts();
 ?>
 <div class="wrap">
 	<h2>
-		<?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?>
+		<?php esc_html_e( 'Drafts for Friends', 'drafts-for-friends' ); ?>
 		<span class="plugin-version">
 		<?php
 			/* translators: %s: plugin version representation */
-			printf( esc_html__( 'v%s', 'draftsforfriends' ), esc_html( DRAFTSFORFRIENDS_VERSION, 'draftsforfriends' ) );
+			printf( esc_html__( 'v%s', 'drafts-for-friends' ), esc_html( DRAFTSFORFRIENDS_VERSION, 'drafts-for-friends' ) );
 		?>
 	</span>
 	</h2>
 	<div class="notice notice-error"></div>
 	<div class="notice notice-success"></div>
-	<h3><?php esc_html_e( 'Currently shared drafts', 'draftsforfriends' ); ?></h3>
+	<h3><?php esc_html_e( 'Currently shared drafts', 'drafts-for-friends' ); ?></h3>
 	<table class="widefat">
 		<thead>
 		<tr>
-			<th><?php esc_html_e( 'ID', 'draftsforfriends' ); ?></th>
-			<th><?php esc_html_e( 'Title', 'draftsforfriends' ); ?></th>
-			<th><?php esc_html_e( 'Link', 'draftsforfriends' ); ?></th>
-			<th><?php esc_html_e( 'Expires After', 'draftsforfriends' ); ?></th>
-			<th colspan="2" class="actions"><?php esc_html_e( 'Actions', 'draftsforfriends' ); ?></th>
+			<th><?php esc_html_e( 'ID', 'drafts-for-friends' ); ?></th>
+			<th><?php esc_html_e( 'Title', 'drafts-for-friends' ); ?></th>
+			<th><?php esc_html_e( 'Link', 'drafts-for-friends' ); ?></th>
+			<th><?php esc_html_e( 'Expires After', 'drafts-for-friends' ); ?></th>
+			<th colspan="2" class="actions"><?php esc_html_e( 'Actions', 'drafts-for-friends' ); ?></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -45,16 +45,16 @@ if ( isset( $s ) ) {
 }
 ?>
 			<tr class="empty-list">
-				<td colspan="5"><?php esc_html_e( 'No shared drafts!', 'draftsforfriends' ); ?></td>
+				<td colspan="5"><?php esc_html_e( 'No shared drafts!', 'drafts-for-friends' ); ?></td>
 			</tr>
 		</tbody>
 	</table>
-	<h3><?php esc_html_e( 'Share a draft with friends', 'draftsforfriends' ); ?></h3>
+	<h3><?php esc_html_e( 'Share a draft with friends', 'drafts-for-friends' ); ?></h3>
 	<form class="draftsforfriends-share" method="post">
 		<input type='hidden' name='action' value='sharedraft' />
 		<p>
 			<select id="draftsforfriends-postid" name="post_id">
-				<option value=""><?php esc_html_e( 'Choose a draft', 'draftsforfriends' ); ?></option>
+				<option value=""><?php esc_html_e( 'Choose a draft', 'drafts-for-friends' ); ?></option>
 <?php
 foreach ( $ds as $dt ) {
 	if ( $dt[1] ) {
@@ -76,8 +76,8 @@ foreach ( $dt[2] as $d ) {
 			</select>
 		</p>
 		<p>
-			<input type="submit" class="button" name="draftsforfriends_submit" value="<?php esc_attr_e( 'Share it', 'draftsforfriends' ); ?>" />
-			<?php esc_html_e( 'for', 'draftsforfriends' ); ?>
+			<input type="submit" class="button" name="draftsforfriends_submit" value="<?php esc_attr_e( 'Share it', 'drafts-for-friends' ); ?>" />
+			<?php esc_html_e( 'for', 'drafts-for-friends' ); ?>
 			<?php require dirname( __FILE__ ) . '/drafts-for-friends-measures.php'; ?>
 		</p>
 	</form>
