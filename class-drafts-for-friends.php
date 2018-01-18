@@ -485,4 +485,4 @@ class Drafts_For_Friends {
 	}
 }
 
-new draftsforfriends();
+new Drafts_For_Friends();
