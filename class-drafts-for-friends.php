@@ -5,6 +5,14 @@
  * @package DraftsForFriends
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! defined( 'DRAFTSFORFRIENDS_VERSION' ) ) {
+	define( 'DRAFTSFORFRIENDS_VERSION', '1.0.0' );
+}
+
 if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 	/**
 	 * Plugin Name: Drafts for Friends
@@ -13,7 +21,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 	 * Author: Patrícia Espada
 	 * Text Domain: draftsforfriends
 	 * Domain Path: /languages
-	 * Version: 1.0
+	 * Version: 1.0.0
 	 */
 	class Drafts_For_Friends {
 
@@ -34,6 +42,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 			global $current_user;
 
 			add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'add_plugin_scripts' ) );
 
 			add_filter( 'the_posts', array( $this, 'the_posts_intercept' ) );
 			add_filter( 'posts_results', array( $this, 'posts_results_intercept' ) );
@@ -43,12 +52,12 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 			add_action( 'wp_ajax_sharedraft', array( $this, 'process_share_draft' ) );
 
 			$this->admin_options = $this->get_admin_options();
-
-			$this->user_options = ( $current_user->id > 0 && isset( $this->admin_options[ $current_user->id ] ) ) ? $this->admin_options[ $current_user->id ] : array();
-
+			if ( $current_user->id > 0 && isset( $this->admin_options[ $current_user->id ] ) ) {
+				$this->user_options = $this->admin_options[ $current_user->id ];
+			} else {
+				$this->user_options = array();
+			}
 			$this->save_admin_options();
-
-			$this->admin_page_init();
 		}
 
 		/**
@@ -61,14 +70,26 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		}
 
 		/**
+		 * Add the admin page.
+		 *
+		 * @return void
+		 */
+		public function add_admin_pages() {
+			add_submenu_page(
+				'edit.php', __( 'Drafts for Friends', 'draftsforfriends' ), __( 'Drafts for Friends', 'draftsforfriends' ),
+				1, 'draftsforfriends', array( $this, 'output_existing_menu_sub_admin_page' )
+			);
+		}
+
+		/**
 		 * Add admin scripts and styles.
 		 *
 		 * @return void
 		 */
-		public function admin_page_init() {
+		public function add_plugin_scripts() {
+			wp_enqueue_style( 'draftsforfriends', plugins_url( 'css/drafts-for-friends.css', __FILE__ ) );
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'draftsforfriends', plugins_url( 'js/drafts-for-friends.js', __FILE__ ), array( 'jquery' ) );
-			wp_enqueue_style( 'draftsforfriends', plugins_url( 'css/drafts-for-friends.css', __FILE__ ) );
 
 			wp_localize_script(
 				'draftsforfriends', 'wp_ajax_delete', array(
@@ -96,7 +117,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return array Array with the shared objects
 		 */
 		public function get_admin_options() {
-			$saved_options = get_option( 'shared' );
+			$saved_options = get_option( 'draftsforfriends_shared_posts' );
 			return is_array( $saved_options ) ? $saved_options : array();
 		}
 
@@ -110,19 +131,8 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 			if ( $current_user->id > 0 ) {
 				$this->admin_options[ $current_user->id ] = $this->user_options;
 			}
-			return update_option( 'shared', $this->admin_options );
-		}
-
-		/**
-		 * Add the admin page.
-		 *
-		 * @return void
-		 */
-		public function add_admin_pages() {
-			add_submenu_page(
-				'edit.php', __( 'Drafts for Friends', 'draftsforfriends' ), __( 'Drafts for Friends', 'draftsforfriends' ),
-				1, 'draftsforfriends', array( $this, 'output_existing_menu_sub_admin_page' )
-			);
+			update_option( 'draftsforfriends_version', DRAFTSFORFRIENDS_VERSION );
+			return update_option( 'draftsforfriends_shared_posts', $this->admin_options );
 		}
 
 		/**

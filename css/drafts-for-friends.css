@@ -1,3 +1,6 @@
+.plugin-title, .plugin-version {
+	display: inline;
+}
 a.draftsforfriends-extend-cancel {
 	display: inline;
 }

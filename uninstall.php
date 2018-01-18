@@ -10,6 +10,6 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die();
 }
 
-$option_name = 'shared';
-delete_option( $option_name );
-delete_site_option( $option_name );
+delete_option( 'draftsforfriends_shared_posts' );
+delete_site_option( 'draftsforfriends_shared_posts' );
+delete_option( 'draftsforfriends_version' );

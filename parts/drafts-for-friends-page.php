@@ -13,7 +13,13 @@ $ds = $this->get_drafts();
 
 ?>
 <div class="wrap">
-	<h2><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h2>
+	<h2 class="plugin-title"><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h2>
+	<span class="plugin-version">
+		<?php
+		/* translators: %s: plugin version representation */
+		printf( esc_html__( 'v%s', 'draftsforfriends' ), esc_html( DRAFTSFORFRIENDS_VERSION, 'draftsforfriends' ) );
+		?>
+	</span>
 	<div class="notice notice-error"></div>
 	<div class="notice notice-success"></div>
 	<h3><?php esc_html_e( 'Currently shared drafts', 'draftsforfriends' ); ?></h3>
