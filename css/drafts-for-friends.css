@@ -1,5 +1,5 @@
-.plugin-title, .plugin-version {
-	display: inline;
+.plugin-version {
+	font-size: 13px;
 }
 a.draftsforfriends-extend-cancel {
 	display: inline;
