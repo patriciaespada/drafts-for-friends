@@ -58,19 +58,25 @@ class DraftsForFriends {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'draftsforfriends', plugins_url( 'js/drafts-for-friends.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_style( 'draftsforfriends', plugins_url( 'css/drafts-for-friends.css', __FILE__ ) );
-		
-		wp_localize_script( 'draftsforfriends', 'wp_ajax_delete', array(
-			'ajaxurl' => admin_url('admin-ajax.php', $protocol),
-  			'ajax_nonce' => wp_create_nonce('delete'),
-		) );
-		wp_localize_script( 'draftsforfriends', 'wp_ajax_extend', array(
-			'ajaxurl' => admin_url('admin-ajax.php', $protocol),
-  			'ajax_nonce' => wp_create_nonce('extend'),
-		) );
-		wp_localize_script( 'draftsforfriends', 'wp_ajax_sharedraft', array(
-			'ajaxurl' => admin_url('admin-ajax.php', $protocol),
-  			'ajax_nonce' => wp_create_nonce('sharedraft'),
-		) );
+
+		wp_localize_script(
+			'draftsforfriends', 'wp_ajax_delete', array(
+				'ajaxurl'    => admin_url( 'admin-ajax.php', $protocol ),
+				'ajax_nonce' => wp_create_nonce( 'delete' ),
+			)
+		);
+		wp_localize_script(
+			'draftsforfriends', 'wp_ajax_extend', array(
+				'ajaxurl'    => admin_url( 'admin-ajax.php', $protocol ),
+				'ajax_nonce' => wp_create_nonce( 'extend' ),
+			)
+		);
+		wp_localize_script(
+			'draftsforfriends', 'wp_ajax_sharedraft', array(
+				'ajaxurl'    => admin_url( 'admin-ajax.php', $protocol ),
+				'ajax_nonce' => wp_create_nonce( 'sharedraft' ),
+			)
+		);
 	}
 
 	/**

@@ -4,6 +4,78 @@
  * @package DraftsForFriends
  */
 
+
+// GLOBAL SCOPE FUNCTION DECLARATION.
+/**
+ * Hide notice messages divs.
+ */
+var hideNoticeMessages = function() {
+	jQuery( '.notice.notice-success' ).hide();
+	jQuery( '.notice.notice-error' ).hide();
+};
+
+/**
+ * Show/Hide table empty line message.
+ */
+var showAndHideEmptyLine = function() {
+	var table = jQuery( 'table.widefat tbody' );
+	if ( table.children().length > 1 ) {
+		jQuery( 'tr.empty-list' ).hide();
+	} else {
+		jQuery( 'tr.empty-list' ).show();
+	}
+};
+
+/**
+ * Hide the extend form.
+ *
+ * @param string sharedKey String representation of the draft key
+ */
+var hideExtendForm = function( sharedKey ) {
+	jQuery( 'form.draftsforfriends-extend[data-shared-key="' + sharedKey + '"]' ).hide();
+	jQuery( '.draftsforfriends-extend-button[data-shared-key="' + sharedKey + '"]' ).show();
+};
+
+/**
+ * Standard ajax json request process. Run the callback function and print the success or error messages.
+ *
+ * @param string response Json response
+ * @param function callback
+ */
+var ajaxJsonRequestSuccessProcess = function( response, callback ) {
+	if ( response.success ) {
+		callback( response.data );
+
+		jQuery( '.notice.notice-success' ).html( '<p>' + response.data.message + '</p>' ).slideDown();
+	} else {
+		jQuery( '.notice.notice-error' ).html( '<p>' + response.data.message + '</p>' ).slideDown();
+	}
+};
+
+/**
+ * Display ajax request failure message.
+ */
+var displayRequestErrorMessage = function() {
+	jQuery( '.notice.notice-error' ).html( '<p>An unexpeted error occured. Please try again.</p>' ).slideDown();
+};
+
+/**
+ * Transform the form inputs into a readable array with name: val format.
+ *
+ * @param array formInputs Array with all form inputs elements
+ */
+var getFormInputsAsArray = function( formInputs ) {
+	var formInputsArr = {};
+	formInputs.each(
+		function() {
+			formInputsArr[ this.name ] = jQuery( this ).val();
+		}
+	);
+	return formInputsArr;
+};
+
+
+// DOM READY SCOPE EVENTS
 jQuery( document ).ready(
 	function() {
 
@@ -13,7 +85,8 @@ jQuery( document ).ready(
 		/**
 		 * Expands the extend form.
 		 */
-		jQuery( '.draftsforfriends-extend-button' ).click(
+		jQuery( document ).on(
+			'click', '.draftsforfriends-extend-button',
 			function( e ) {
 				e.preventDefault();
 
@@ -28,7 +101,8 @@ jQuery( document ).ready(
 		/**
 		 * Cancel the extend operation.
 		 */
-		jQuery( '.draftsforfriends-extend-cancel' ).click(
+		jQuery( document ).on(
+			'click', '.draftsforfriends-extend-cancel',
 			function( e ) {
 				e.preventDefault();
 
@@ -41,7 +115,8 @@ jQuery( document ).ready(
 		/**
 		 * Extend the expiration date of a draft post (AJAX call to the server).
 		 */
-		jQuery( 'form.draftsforfriends-extend' ).submit(
+		jQuery( document ).on(
+			'submit', 'form.draftsforfriends-extend',
 			function( e ) {
 				e.preventDefault();
 
@@ -52,11 +127,7 @@ jQuery( document ).ready(
 				hideExtendForm( sharedKey );
 
 				// Build the request.
-				var formInputs = jQuery( 'form.draftsforfriends-extend[data-shared-key="' + sharedKey + '"] :input' );
-				var request = {};
-				formInputs.each( function() {
-					request[ this.name ] = jQuery( this ).val();
-				});
+				var request = getFormInputsAsArray( jQuery( 'form.draftsforfriends-extend[data-shared-key="' + sharedKey + '"] :input' ) );
 
 				jQuery.ajax(
 					{
@@ -71,7 +142,7 @@ jQuery( document ).ready(
 						type: 'POST',
 						dataType: 'json',
 						success: function( response ) {
-							ajaxRequestSuccessProcess(
+							ajaxJsonRequestSuccessProcess(
 								response, function( data ) {
 									// Reset form.
 									jQuery( 'form.draftsforfriends-extend[data-shared-key="' + sharedKey + '"]' ).trigger( "reset" );
@@ -92,7 +163,8 @@ jQuery( document ).ready(
 		/**
 		 * Delete a draft post (AJAX call to the server)
 		 */
-		jQuery( '.draftsforfriends-delete-button' ).click(
+		jQuery( document ).on(
+			'click', '.draftsforfriends-delete-button',
 			function( e ) {
 				e.preventDefault();
 
@@ -101,11 +173,7 @@ jQuery( document ).ready(
 				var sharedKey = jQuery( this ).data( 'shared-key' );
 
 				// Build the request.
-				var formInputs = jQuery( 'form.draftsforfriends-delete[data-shared-key="' + sharedKey + '"] :input' );
-				var request = {};
-				formInputs.each( function() {
-					request[ this.name ] = jQuery( this ).val();
-				});
+				var request = getFormInputsAsArray( jQuery( 'form.draftsforfriends-delete[data-shared-key="' + sharedKey + '"] :input' ) );
 
 				jQuery.ajax(
 					{
@@ -118,7 +186,7 @@ jQuery( document ).ready(
 						type: 'POST',
 						dataType: 'json',
 						success: function( response ) {
-							ajaxRequestSuccessProcess(
+							ajaxJsonRequestSuccessProcess(
 								response, function( data ) {
 									// Reset form.
 									jQuery( 'form.draftsforfriends-delete[data-shared-key="' + sharedKey + '"]' ).trigger( "reset" );
@@ -150,11 +218,7 @@ jQuery( document ).ready(
 				hideNoticeMessages();
 
 				// Build the request.
-				var formInputs = jQuery( 'form.draftsforfriends-share :input' );
-				var request = {};
-				formInputs.each( function() {
-					request[ this.name ] = jQuery( this ).val();
-				});
+				var request = getFormInputsAsArray( jQuery( 'form.draftsforfriends-share :input' ) );
 
 				jQuery.ajax(
 					{
@@ -192,7 +256,8 @@ jQuery( document ).ready(
 		/**
 		 * Copy the link of the draft post.
 		 */
-		jQuery( '.draftsforfriends-copy-link' ).click(
+		jQuery( document ).on(
+			'click', '.draftsforfriends-copy-link',
 			function( e ) {
 				e.preventDefault();
 
@@ -205,38 +270,5 @@ jQuery( document ).ready(
 				temp.remove();
 			}
 		);
-
-		function hideNoticeMessages() {
-			jQuery( '.notice.notice-success' ).hide();
-			jQuery( '.notice.notice-error' ).hide();
-		};
-
-		function showAndHideEmptyLine() {
-			var table = jQuery( 'table.widefat tbody' );
-			if ( table.children().length > 1 ) {
-				jQuery( 'tr.empty-list' ).hide();
-			} else {
-				jQuery( 'tr.empty-list' ).show();
-			}
-		};
-
-		function hideExtendForm( sharedKey ) {
-			jQuery( 'form.draftsforfriends-extend[data-shared-key="' + sharedKey + '"]' ).hide();
-			jQuery( '.draftsforfriends-extend-button[data-shared-key="' + sharedKey + '"]' ).show();
-		}
-
-		function ajaxRequestSuccessProcess( response, callback ) {
-			if ( response.success ) {
-				callback( response.data );
-
-				jQuery( '.notice.notice-success' ).html( '<p>' + response.data.message + '</p>' ).slideDown();
-			} else {
-				jQuery( '.notice.notice-error' ).html( '<p>' + response.data.message + '</p>' ).slideDown();
-			}
-		}
-
-		function displayRequestErrorMessage() {
-			jQuery( '.notice.notice-error' ).html( '<p>An unexpeted error occured. Please try again.</p>' ).slideDown();
-		}
 	}
 );
