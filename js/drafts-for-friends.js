@@ -52,12 +52,22 @@ jQuery( document ).ready(
 				hideExtendForm( sharedKey );
 
 				// Build the request.
-				var request = jQuery( 'form.draftsforfriends-extend[data-shared-key="' + sharedKey + '"]' ).serialize();
+				var formInputs = jQuery( 'form.draftsforfriends-extend[data-shared-key="' + sharedKey + '"] :input' );
+				var request = {};
+				formInputs.each( function() {
+					request[ this.name ] = jQuery( this ).val();
+				});
 
 				jQuery.ajax(
 					{
-						url: ajaxurl,
-						data: request,
+						url: wp_ajax_extend.ajaxurl,
+						data: {
+							action: request['action'],
+							key: request['key'],
+							expires: request['expires'],
+							measure: request['measure'],
+							security: wp_ajax_extend.ajax_nonce
+						},
 						type: 'POST',
 						dataType: 'json',
 						success: function( response ) {
@@ -91,16 +101,23 @@ jQuery( document ).ready(
 				var sharedKey = jQuery( this ).data( 'shared-key' );
 
 				// Build the request.
-				var request = jQuery( 'form.draftsforfriends-delete[data-shared-key="' + sharedKey + '"]' ).serialize();
+				var formInputs = jQuery( 'form.draftsforfriends-delete[data-shared-key="' + sharedKey + '"] :input' );
+				var request = {};
+				formInputs.each( function() {
+					request[ this.name ] = jQuery( this ).val();
+				});
 
 				jQuery.ajax(
 					{
-						url: ajaxurl,
-						data: request,
+						url: wp_ajax_delete.ajaxurl,
+						data: {
+							action: request['action'],
+							key: request['key'],
+							security: wp_ajax_delete.ajax_nonce
+						},
 						type: 'POST',
 						dataType: 'json',
 						success: function( response ) {
-							console.log( response );
 							ajaxRequestSuccessProcess(
 								response, function( data ) {
 									// Reset form.
@@ -133,12 +150,22 @@ jQuery( document ).ready(
 				hideNoticeMessages();
 
 				// Build the request.
-				var request = jQuery( 'form.draftsforfriends-share' ).serialize();
+				var formInputs = jQuery( 'form.draftsforfriends-share :input' );
+				var request = {};
+				formInputs.each( function() {
+					request[ this.name ] = jQuery( this ).val();
+				});
 
 				jQuery.ajax(
 					{
-						url: ajaxurl,
-						data: request,
+						url: wp_ajax_sharedraft.ajaxurl,
+						data: {
+							action: request['action'],
+							post_id: request['post_id'],
+							expires: request['expires'],
+							measure: request['measure'],
+							security: wp_ajax_sharedraft.ajax_nonce
+						},
 						type: 'POST',
 						success: function( response ) {
 							// Reset form.

@@ -58,6 +58,19 @@ class DraftsForFriends {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'draftsforfriends', plugins_url( 'js/drafts-for-friends.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_style( 'draftsforfriends', plugins_url( 'css/drafts-for-friends.css', __FILE__ ) );
+		
+		wp_localize_script( 'draftsforfriends', 'wp_ajax_delete', array(
+			'ajaxurl' => admin_url('admin-ajax.php', $protocol),
+  			'ajax_nonce' => wp_create_nonce('delete'),
+		) );
+		wp_localize_script( 'draftsforfriends', 'wp_ajax_extend', array(
+			'ajaxurl' => admin_url('admin-ajax.php', $protocol),
+  			'ajax_nonce' => wp_create_nonce('extend'),
+		) );
+		wp_localize_script( 'draftsforfriends', 'wp_ajax_sharedraft', array(
+			'ajaxurl' => admin_url('admin-ajax.php', $protocol),
+  			'ajax_nonce' => wp_create_nonce('sharedraft'),
+		) );
 	}
 
 	/**
@@ -127,7 +140,7 @@ class DraftsForFriends {
 	public function process_share_draft() {
 		$params = filter_input_array( INPUT_POST );
 
-		if ( empty( $params['share-draft-nonce'] ) || ! wp_verify_nonce( $params['share-draft-nonce'], 'share-draft' ) ) {
+		if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'sharedraft' ) ) {
 			wp_send_json_error(
 				array(
 					'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),
@@ -187,7 +200,7 @@ class DraftsForFriends {
 	public function process_delete() {
 		$params = filter_input_array( INPUT_POST );
 
-		if ( empty( $params['delete-nonce'] ) || ! wp_verify_nonce( $params['delete-nonce'], 'delete' ) ) {
+		if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'delete' ) ) {
 			wp_send_json_error(
 				array(
 					'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),
@@ -238,7 +251,7 @@ class DraftsForFriends {
 	public function process_extend() {
 		$params = filter_input_array( INPUT_POST );
 
-		if ( empty( $params['extend-nonce'] ) || ! wp_verify_nonce( $params['extend-nonce'], 'extend' ) ) {
+		if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'extend' ) ) {
 			wp_send_json_error(
 				array(
 					'message' => esc_html( 'Could not verify the origin and intent of the request: nonce verification failed.', 'draftsforfriends' ),

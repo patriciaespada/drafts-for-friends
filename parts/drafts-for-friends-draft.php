@@ -35,7 +35,6 @@ $expire_time = $this->get_time_to_expire( $share );
 				<?php esc_html_e( 'Extend', 'draftsforfriends' ); ?>
 		</a>
 		<form class="draftsforfriends-extend" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" method="post">
-			<?php wp_nonce_field( 'extend', 'extend-nonce' ); ?>
 			<input type="hidden" name="action" value="extend" />
 			<input type="hidden" name="key" value="<?php echo esc_attr( $share['key'] ); ?>" />
 			<input type="submit" class="button" name="draftsforfriends_extend_submit" value="<?php esc_attr_e( 'Extend', 'draftsforfriends' ); ?>"/>
@@ -48,7 +47,6 @@ $expire_time = $this->get_time_to_expire( $share );
 	</td>
 	<td class="actions">
 		<form class="draftsforfriends-delete" data-shared-key="<?php echo esc_attr( $share['key'] ); ?>" method='post'>
-			<?php wp_nonce_field( 'delete', 'delete-nonce' ); ?>
 			<input type='hidden' name='action' value='delete' />
 			<input type='hidden' name='key' value='<?php echo esc_attr( $share['key'] ); ?>' />
 		</form>

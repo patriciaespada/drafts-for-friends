@@ -41,7 +41,6 @@ endforeach;
 	</table>
 	<h3><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h3>
 	<form class="draftsforfriends-share" method="post">
-		<?php wp_nonce_field( 'share-draft', 'share-draft-nonce' ); ?>
 		<input type='hidden' name='action' value='sharedraft' />
 		<p>
 			<select id="draftsforfriends-postid" name="post_id">
