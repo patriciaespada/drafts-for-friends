@@ -30,38 +30,40 @@ $ds = $this->get_drafts();
 		<tbody>
 <?php
 $s = $this->get_shared();
-foreach ( $s as $share ) :
-	include dirname( __FILE__ ) . '/drafts-for-friends-draft.php';
-endforeach;
+if ( isset( $s ) ) {
+	foreach ( $s as $share ) {
+		include dirname( __FILE__ ) . '/drafts-for-friends-draft.php';
+	}
+}
 ?>
 			<tr class="empty-list">
 				<td colspan="5"><?php esc_html_e( 'No shared drafts!', 'draftsforfriends' ); ?></td>
 			</tr>
 		</tbody>
 	</table>
-	<h3><?php esc_html_e( 'Drafts for Friends', 'draftsforfriends' ); ?></h3>
+	<h3><?php esc_html_e( 'Share a draft with friends', 'draftsforfriends' ); ?></h3>
 	<form class="draftsforfriends-share" method="post">
 		<input type='hidden' name='action' value='sharedraft' />
 		<p>
 			<select id="draftsforfriends-postid" name="post_id">
 				<option value=""><?php esc_html_e( 'Choose a draft', 'draftsforfriends' ); ?></option>
 <?php
-foreach ( $ds as $dt ) :
-	if ( $dt[1] ) :
+foreach ( $ds as $dt ) {
+	if ( $dt[1] ) {
 ?>
 				<option value="" disabled="disabled"></option>
 				<option value="" disabled="disabled"><?php echo esc_html( $dt[0] ); ?></option>
 <?php
-foreach ( $dt[2] as $d ) :
+foreach ( $dt[2] as $d ) {
 	if ( empty( $d->post_title ) ) {
 		continue;
 	}
 ?>
 				<option value="<?php echo esc_attr( $d->ID ); ?>"><?php echo esc_html( $d->post_title ); ?></option>
 <?php
-endforeach;
-endif;
-endforeach;
+}
+	}
+}
 ?>
 			</select>
 		</p>
