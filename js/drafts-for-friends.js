@@ -4,7 +4,6 @@
  * @package DraftsForFriends
  */
 
-
 // GLOBAL SCOPE FUNCTION DECLARATION.
 /**
  * Hide notice messages divs.
@@ -75,7 +74,7 @@ var getFormInputsAsArray = function( formInputs ) {
 };
 
 
-// DOM READY SCOPE EVENTS
+// DOM READY SCOPE EVENTS.
 jQuery( document ).ready(
 	function() {
 

@@ -14,7 +14,7 @@
  * Domain Path: /languages
  * Version: 1.0
  */
-class DraftsForFriends {
+class Drafts_For_Friends {
 
 	/**
 	 * Drafts For Friends constructor.
