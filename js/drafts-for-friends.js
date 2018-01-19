@@ -1,7 +1,7 @@
 /**
  * Javascript methods to support the plugin Drafts for Firends.
  *
- * @package DraftsForFriends
+ * @package Drafts_For_Friends
  */
 
 // GLOBAL SCOPE FUNCTION DECLARATION.

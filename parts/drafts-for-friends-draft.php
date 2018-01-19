@@ -2,7 +2,7 @@
 /**
  * Drafts for Friends Draft Template
  *
- * @package DraftsForFriends
+ * @package Drafts_For_Friends
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

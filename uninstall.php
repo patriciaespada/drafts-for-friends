@@ -2,7 +2,7 @@
 /**
  * Drafts for Friends Uninstall (https://developer.wordpress.org/plugins/the-basics/uninstall-methods/)
  *
- * @package DraftsForFriends
+ * @package Drafts_For_Friends
  */
 
 // If uninstall is not called from WordPress, die.

@@ -2,7 +2,7 @@
 /**
  * Implementation of the plugin Drafts for Firends.
  *
- * @package DraftsForFriends
+ * @package Drafts_For_Friends
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,8 +52,8 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 			add_action( 'wp_ajax_sharedraft', array( $this, 'process_share_draft' ) );
 
 			$this->admin_options = $this->get_admin_options();
-			if ( $current_user->id > 0 && isset( $this->admin_options[ $current_user->id ] ) ) {
-				$this->user_options = $this->admin_options[ $current_user->id ];
+			if ( $current_user->ID > 0 && isset( $this->admin_options[ $current_user->ID ] ) ) {
+				$this->user_options = $this->admin_options[ $current_user->ID ];
 			} else {
 				$this->user_options = array();
 			}
@@ -133,8 +133,8 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 */
 		public function save_admin_options() {
 			global $current_user;
-			if ( $current_user->id > 0 ) {
-				$this->admin_options[ $current_user->id ] = $this->user_options;
+			if ( $current_user->ID > 0 ) {
+				$this->admin_options[ $current_user->ID ] = $this->user_options;
 			}
 			update_option( 'draftsforfriends_version', DRAFTSFORFRIENDS_VERSION );
 			return update_option( 'draftsforfriends_shared_posts', $this->admin_options );
@@ -341,7 +341,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 
 			// Get the future user posts, ordered by the post_modified DESC.
 			$args  = array(
-				'post_author' => absint( $current_user->id ),
+				'post_author' => absint( $current_user->ID ),
 				'post_status' => array( 'draft', 'future', 'pending' ),
 				'post_type'   => 'post',
 				'orderby'     => 'post_modified',
@@ -403,7 +403,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @param array $share Object that represents the shared post.
 		 * @return string String representing the time for the shared post to expire
 		 */
-		private function get_time_to_expire( $share ) {
+		public function get_time_to_expire( $share ) {
 			$now = current_time( 'timestamp' );
 			if ( $share['expires'] < $now ) {
 				return __( 'Expired', 'drafts-for-friends' );
@@ -502,7 +502,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return array The post presented as an array
 		 */
 		public function the_posts_intercept( $pp ) {
-			if ( empty( $pp ) && ! is_null( $this->shared_post ) ) {
+			if ( empty( $pp ) && ! empty( $this->shared_post ) && ! is_null( $this->shared_post ) ) {
 				return array( $this->shared_post );
 			} else {
 				$this->shared_post = null;
