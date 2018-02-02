@@ -29,7 +29,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * Drafts For Friends plugin constructor.
 		 */
 		public function __construct() {
-			add_action( 'init', array( &$this, 'init' ) );
+			add_action( 'init', array( $this, 'init' ) );
 			add_action( 'plugins_loaded', array( $this, 'draftsforfriends_load_textdomain' ) );
 		}
 
@@ -70,23 +70,29 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		}
 
 		/**
-		 * Add the admin page.
+		 * Add the plugin admin page under the post menu.
 		 *
 		 * @return void
 		 */
 		public function add_admin_pages() {
 			add_submenu_page(
 				'edit.php', __( 'Drafts for Friends', 'drafts-for-friends' ), __( 'Drafts for Friends', 'drafts-for-friends' ),
-				1, 'drafts-for-friends', array( $this, 'output_existing_menu_sub_admin_page' )
+				'edit_posts', 'drafts-for-friends', array( $this, 'output_existing_menu_sub_admin_page' )
 			);
 		}
 
 		/**
-		 * Add admin scripts and styles.
+		 * Add scripts and styles to plugin admin page.
 		 *
+		 * @param string $hook In this case we only want to add those scripts to the plugin hook "posts_page_drafts-for-friends".
 		 * @return void
 		 */
-		public function add_plugin_scripts() {
+		public function add_plugin_scripts( $hook ) {
+			global $protocol;
+
+			if ( 'posts_page_drafts-for-friends' !== $hook ) {
+				return;
+			}
 			wp_enqueue_style( 'drafts-for-friends', plugins_url( 'css/drafts-for-friends.css', __FILE__ ) );
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'drafts-for-friends', plugins_url( 'js/drafts-for-friends.js', __FILE__ ), array( 'jquery' ) );
@@ -170,7 +176,13 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return void The response is either an error message, or the html with the representation of the new draft.
 		 */
 		public function process_share_draft() {
-			$params = filter_input_array( INPUT_POST );
+			$params = filter_input_array( INPUT_POST, [
+				'action'   => FILTER_SANITIZE_STRING,
+				'post_id'  => FILTER_SANITIZE_NUMBER_INT,
+				'expires'  => FILTER_SANITIZE_NUMBER_INT,
+				'measure'  => FILTER_SANITIZE_STRING,
+				'security' => FILTER_SANITIZE_STRING,
+			] );
 
 			if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'sharedraft' ) ) {
 				wp_send_json_error(
@@ -230,7 +242,11 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return void The response is a json with an error message or with an successfull message
 		 */
 		public function process_delete() {
-			$params = filter_input_array( INPUT_POST );
+			$params = filter_input_array( INPUT_POST, [
+				'action'   => FILTER_SANITIZE_STRING,
+				'key'      => FILTER_SANITIZE_STRING,
+				'security' => FILTER_SANITIZE_STRING,
+			] );
 
 			if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'delete' ) ) {
 				wp_send_json_error(
@@ -281,7 +297,13 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return void  The response is a json with an error message or with an successfull message and the new expiration time
 		 */
 		public function process_extend() {
-			$params = filter_input_array( INPUT_POST );
+			$params = filter_input_array( INPUT_POST, [
+				'action'   => FILTER_SANITIZE_STRING,
+				'key'      => FILTER_SANITIZE_STRING,
+				'expires'  => FILTER_SANITIZE_NUMBER_INT,
+				'measure'  => FILTER_SANITIZE_STRING,
+				'security' => FILTER_SANITIZE_STRING,
+			] );
 
 			if ( empty( $params['security'] ) || ! wp_verify_nonce( $params['security'], 'extend' ) ) {
 				wp_send_json_error(
@@ -461,7 +483,7 @@ if ( ! class_exists( 'Drafts_For_Friends' ) ) {
 		 * @return boolean True if the url matches, false otherwise
 		 */
 		public function can_view( $pid ) {
-			$key = filter_input( INPUT_GET, 'drafts-for-friends', FILTER_SANITIZE_STRING );
+			$key = filter_input( INPUT_GET, 'draftsforfriends', FILTER_SANITIZE_STRING );
 			if ( empty( $key ) ) {
 				return false;
 			}
